@@ -9,4 +9,5 @@ pip3 install virualenv
 virtualenv robotics
 source robotics/bin/activate
 pip3 install -r requirements.txt
+pip install .
 ```
