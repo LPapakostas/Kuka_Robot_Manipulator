@@ -78,3 +78,23 @@ def tra_z(d: sympy.Symbol) -> sympy.Matrix:
                          [0, 0, 1, d],
                          [0, 0, 0, 1]])
     return traz
+
+
+def dh_homogenous(theta: sympy.Symbol, d: sympy.Symbol, alpha: sympy.Symbol, a: sympy.Symbol) -> sympy.Matrix:
+    """
+    Compute Homogenous Transformation matrix from Denavit-Hartenberg parameters 
+    """
+
+    c_th = sympy.cos(theta)
+    s_th = sympy.sin(theta)
+
+    c_a = sympy.cos(alpha)
+    s_a = sympy.sin(alpha)
+
+    dh_homogenous_matrix = sympy.Matrix([
+        [c_th, -s_th * c_a, s_th * s_a, a * c_th],
+        [s_th, c_th * c_a, -c_th * s_a, a * s_th],
+        [0, s_a, c_a, d],
+        [0, 0, 0, 1]])
+
+    return dh_homogenous_matrix
