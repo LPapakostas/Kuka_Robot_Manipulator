@@ -14,8 +14,11 @@ L4 = 0.140  # in [m]
 L5 = 0.550  # in [m]
 L6 = 0.100  # in [m]
 L7 = 0.100  # in [m]
+L = [L0, L1, L2, L3, L4, L5, L6, L7]
 
-DEBUG = True
+DEBUG = False
+
+# *==== Methods ====*
 
 
 def generate_DH_table(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> Dict[str, Dict[str, sympy.Symbol]]:
@@ -51,18 +54,12 @@ def generate_DH_table(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) ->
     return dh_parameter_table
 
 
-def compute_kuka_forward_kinematics(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> sympy.Matrix:
+def compute_DH_transformation_matrices(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> List[sympy.Matrix]:
     """
     """
-
-    assert(len(q_list) == 6)
-    assert(len(l_list) == 8)
 
     dh_parameter_table = generate_DH_table(q_list, l_list)
-    A_0_E = sympy.Matrix([[1, 0, 0, 0],
-                         [0, 1, 0, 0],
-                         [0, 0, 1, 0],
-                         [0, 0, 0, 1]])
+    dh_homogenous_matrices = []
 
     for i, (_, link_parameters) in enumerate(dh_parameter_table.items()):
         current_theta = link_parameters["theta"]
@@ -71,12 +68,42 @@ def compute_kuka_forward_kinematics(q_list: List[sympy.Symbol], l_list: List[sym
         current_a = link_parameters["a"]
         current_homogenous_matrix = dh_homogenous(
             current_theta, current_d, current_alpha, current_a)
-        # FIXME: Need to substitute q4, q5, q6 to zero
-        A_0_E = sympy.simplify(A_0_E @ current_homogenous_matrix)
+
+        if DEBUG:
+            print(f"Transformation matrix from frame {i} to {i+1} is: ")
+            pprint(current_homogenous_matrix)
+            print('\n')
+
+        dh_homogenous_matrices.append(current_homogenous_matrix)
+
+    return dh_homogenous_matrices
+
+
+def compute_kuka_forward_kinematics(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> sympy.Matrix:
+    """
+    """
+
+    assert(len(q_list) == 6)
+    assert(len(l_list) == 8)
+
+    DH_matrices = compute_DH_transformation_matrices(q_list, l_list)
+    A_0_E = sympy.Matrix([[1, 0, 0, 0],
+                         [0, 1, 0, 0],
+                         [0, 0, 1, 0],
+                         [0, 0, 0, 1]])
+
+    for i, matrix in enumerate(DH_matrices):
+        # Substitute q4, q5, q4 with 0
+        if (i > 2):
+            matrix = matrix.subs(q_list[i], 0)
+        A_0_E = sympy.simplify(A_0_E@matrix)
 
         if DEBUG:
             print(f"Transformation matrix from frame {0} to {i+1} is: ")
             pprint(A_0_E)
+            print('\n')
+
+    return A_0_E
 
 
 if (__name__ == "__main__"):
@@ -84,5 +111,11 @@ if (__name__ == "__main__"):
     q_list = list(sympy.symbols("q1:7"))
     l_list = list(sympy.symbols("l0:8"))
     A_0_E = compute_kuka_forward_kinematics(q_list, l_list)
-    pprint("Forward Kinematics Matrix is: ")
+    if DEBUG:
+        pprint("Forward Kinematics Matrix is: ")
+        pprint(A_0_E)
+
+    for i in range(0, len(l_list)):
+        A_0_E = A_0_E.subs(l_list[i], L[i])
+
     pprint(A_0_E)
