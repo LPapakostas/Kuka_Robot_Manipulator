@@ -15,7 +15,7 @@ L5 = 0.550  # in [m]
 L6 = 0.100  # in [m]
 L7 = 0.100  # in [m]
 
-DEBUG = False
+DEBUG = True
 
 
 def generate_DH_table(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> Dict[str, Dict[str, sympy.Symbol]]:
@@ -61,7 +61,7 @@ def compute_kuka_forward_kinematics(q_list: List[sympy.Symbol], l_list: List[sym
     dh_parameter_table = generate_DH_table(q_list, l_list)
     A_0_E = sympy.Matrix([[1, 0, 0, 0],
                          [0, 1, 0, 0],
-                         [0, 0, 1, 1],
+                         [0, 0, 1, 0],
                          [0, 0, 0, 1]])
 
     for i, (_, link_parameters) in enumerate(dh_parameter_table.items()):
