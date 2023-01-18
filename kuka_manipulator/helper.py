@@ -98,3 +98,19 @@ def dh_homogenous(theta: sympy.Symbol, d: sympy.Symbol, alpha: sympy.Symbol, a: 
         [0, 0, 0, 1]])
 
     return dh_homogenous_matrix
+
+
+def skew_symmetric(vector: sympy.Matrix) -> sympy.Matrix:
+    """
+    Compute skew symmetric matrix for a given vector
+    """
+
+    # Check if vector is properly declared
+    dim_a, dim_b = vector.rows, vector.cols
+    assert(dim_a + dim_b == 4)
+
+    a1, a2, a3 = vector[0], vector[1], vector[2]
+
+    skew_matrix = sympy.Matrix([[0, -a3, -a2], [a3, 0, -a1], [-a2, a1, 0]])
+
+    return skew_matrix
