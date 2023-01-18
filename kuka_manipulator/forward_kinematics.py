@@ -18,6 +18,8 @@ L = [L0, L1, L2, L3, L4, L5, L6, L7]
 
 DEBUG = False
 
+# TODO: Add docstrings
+
 # *==== Methods ====*
 
 
@@ -35,11 +37,11 @@ def generate_DH_table(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) ->
     l3, l4, l5 = l_list[3], l_list[4], l_list[5]
     l6, l7 = l_list[6], l_list[7]
 
-    link_0_params = {"theta": q1, "d": l0, "alpha": -sympy.pi/2, "a": l1}
-    link_1_params = {"theta": q2 - sympy.pi/2, "d": l3, "alpha": 0, "a": l2}
-    link_2_params = {"theta": q3, "d": 0, "alpha": -sympy.pi/2, "a": l4}
-    link_3_params = {"theta": q4, "d": l5, "alpha": sympy.pi/2, "a": 0}
-    link_4_params = {"theta": q5, "d": l6, "alpha": -sympy.pi/2, "a": 0}
+    link_0_params = {"theta": q1, "d": l0, "alpha": -sympy.pi / 2, "a": l1}
+    link_1_params = {"theta": q2 - sympy.pi / 2, "d": l3, "alpha": 0, "a": l2}
+    link_2_params = {"theta": q3, "d": 0, "alpha": -sympy.pi / 2, "a": l4}
+    link_3_params = {"theta": q4, "d": l5, "alpha": sympy.pi / 2, "a": 0}
+    link_4_params = {"theta": q5, "d": l6, "alpha": -sympy.pi / 2, "a": 0}
     link_5_params = {"theta": q6, "d": l7, "alpha": 0, "a": 0}
 
     dh_parameter_table = {
@@ -79,7 +81,7 @@ def compute_DH_transformation_matrices(q_list: List[sympy.Symbol], l_list: List[
     return dh_homogenous_matrices
 
 
-def compute_kuka_forward_kinematics(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> sympy.Matrix:
+def compute_kuka_forward_kinematics(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> List[sympy.Matrix]:
     """
     """
 
@@ -91,29 +93,30 @@ def compute_kuka_forward_kinematics(q_list: List[sympy.Symbol], l_list: List[sym
                          [0, 1, 0, 0],
                          [0, 0, 1, 0],
                          [0, 0, 0, 1]])
+    homogenous_tranformations = []
 
     for i, matrix in enumerate(DH_matrices):
         # Substitute q4, q5, q4 with 0
         if (i > 2):
             matrix = matrix.subs(q_list[i], 0)
-        A_0_E = sympy.simplify(A_0_E@matrix)
+        A_0_E = sympy.simplify(A_0_E @ matrix)
+        homogenous_tranformations.append(A_0_E)
 
-        if DEBUG:
-            print(f"Transformation matrix from frame {0} to {i+1} is: ")
-            pprint(A_0_E)
-            print('\n')
-
-    return A_0_E
+    return homogenous_tranformations
 
 
 if (__name__ == "__main__"):
 
     q_list = list(sympy.symbols("q1:7"))
     l_list = list(sympy.symbols("l0:8"))
-    A_0_E = compute_kuka_forward_kinematics(q_list, l_list)
+    homogenous_tranformations = compute_kuka_forward_kinematics(q_list, l_list)
+    A_0_E = homogenous_tranformations[-1]
+
     if DEBUG:
-        pprint("Forward Kinematics Matrix is: ")
-        pprint(A_0_E)
+        for i, matrix in enumerate(homogenous_tranformations):
+            print(f"Transformation matrix from frame {0} to {i+1} is: ")
+            pprint(matrix)
+            print('\n')
 
     for i in range(0, len(l_list)):
         A_0_E = A_0_E.subs(l_list[i], L[i])
