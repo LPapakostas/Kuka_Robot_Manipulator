@@ -3,7 +3,7 @@
 
 import sympy
 import numpy as np
-from kuka_manipulator.forward_kinematics import compute_kuka_forward_kinematics
+from kuka_manipulator.forward_kinematics import compute_kuka_forward_kinematics, L
 from kuka_manipulator.helper import skew_symmetric
 from typing import List
 from pprint import pprint
@@ -11,12 +11,13 @@ from pprint import pprint
 # *==== Constants ====*
 
 DH_BASE = np.array([[0], [0], [1]])
+SUBS = False
 
 
 # *==== Methods ====*
 
 
-def compute_jacobian_matrix(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]):
+def compute_jacobian_matrix(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> sympy.Matrix:
 
     # Compute and decompose homogenous matrices
     dh_homogenous_matrices = compute_kuka_forward_kinematics(q_list, l_list)
@@ -53,11 +54,51 @@ def compute_jacobian_matrix(q_list: List[sympy.Symbol], l_list: List[sympy.Symbo
     j_l3 = sympy.simplify(b_2_skew @ p_2_E)
     j_a3 = b_2
 
-    pass
+    # Compute J_L4 and J_A4
+    R_0_3 = A_0_3[0:3, 0:3]
+    b_3 = R_0_3 @ DH_BASE
+    b_3_skew = skew_symmetric(b_3)
+    p_0_3 = A_0_3[0:3, 3]
+    p_3_E = p_0_E - p_0_3
+
+    j_l4 = sympy.simplify(b_3_skew @ p_3_E)
+    j_a4 = b_3
+
+    # Compute J_L5 and J_A5
+    R_0_4 = A_0_4[0:3, 0:3]
+    b_4 = R_0_4 @ DH_BASE
+    b_4_skew = skew_symmetric(b_4)
+    p_0_4 = A_0_4[0:3, 3]
+    p_4_E = p_0_E - p_0_4
+
+    j_l5 = sympy.simplify(b_4_skew @ p_4_E)
+    j_a5 = b_4
+
+    # Compute J_L6 and J_A6
+    R_0_5 = A_0_5[0:3, 0:3]
+    b_5 = R_0_5 @ DH_BASE
+    b_5_skew = skew_symmetric(b_5)
+    p_0_5 = A_0_5[0:3, 3]
+    p_5_E = p_0_E - p_0_5
+
+    j_l6 = b_5_skew @ p_5_E
+    j_a6 = b_5
+
+    j = sympy.Matrix(
+        [[j_l1, j_l2, j_l3, j_l4, j_l5, j_l6], [j_a1, j_a2, j_a3, j_a4, j_a5, j_a6]])
+    j = sympy.simplify(j)
+
+    return j
 
 
 if (__name__ == "__main__"):
     q_list = list(sympy.symbols("q1:7"))
     l_list = list(sympy.symbols("l0:8"))
 
-    compute_jacobian_matrix(q_list, l_list)
+    J = compute_jacobian_matrix(q_list, l_list)
+
+    if SUBS:
+        for i in range(0, len(l_list)):
+            J = J.subs(l_list[i], L[i])
+
+    pprint(J)
