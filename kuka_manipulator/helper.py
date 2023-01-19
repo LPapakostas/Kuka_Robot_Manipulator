@@ -111,6 +111,6 @@ def skew_symmetric(vector: sympy.Matrix) -> sympy.Matrix:
 
     a1, a2, a3 = vector[0], vector[1], vector[2]
 
-    skew_matrix = sympy.Matrix([[0, -a3, -a2], [a3, 0, -a1], [-a2, a1, 0]])
+    skew_matrix = sympy.Matrix([[0, -a3, a2], [a3, 0, -a1], [-a2, a1, 0]])
 
     return skew_matrix
