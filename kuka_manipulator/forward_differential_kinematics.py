@@ -7,11 +7,14 @@ from kuka_manipulator.forward_kinematics import compute_kuka_forward_kinematics,
 from kuka_manipulator.helper import skew_symmetric
 from typing import List
 from pprint import pprint
+import pickle
+import os
 
 # *==== Constants ====*
 
 DH_BASE = np.array([[0], [0], [1]])
 SUBS = False
+SAVE_DATA_PATH = os.getcwd() + "/kuka_manipulator/cached_matrices/jacobian.pickle"
 
 
 # *==== Methods ====*
@@ -96,6 +99,10 @@ if (__name__ == "__main__"):
     l_list = list(sympy.symbols("l0:8"))
 
     J = compute_jacobian_matrix(q_list, l_list)
+
+    # Save Jacobian matrix
+    with open(SAVE_DATA_PATH, 'wb') as outf:
+        outf.write(pickle.dumps(J))
 
     if SUBS:
         for i in range(0, len(l_list)):
