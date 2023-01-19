@@ -4,6 +4,8 @@ from kuka_manipulator.helper import dh_homogenous
 import sympy
 from typing import List, Dict
 from pprint import pprint
+import os
+import pickle
 
 # *==== Static Parameter Definition ====*
 L0 = 0.810  # in [m]
@@ -17,6 +19,8 @@ L7 = 0.100  # in [m]
 L = [L0, L1, L2, L3, L4, L5, L6, L7]
 
 DEBUG = False
+HOMOGENOUS_TRANS_SAVE_PATH = os.getcwd(
+) + "/kuka_manipulator/cached_matrices/homogenous_transformations.pickle"
 
 # TODO: Add docstrings
 
@@ -110,6 +114,11 @@ if (__name__ == "__main__"):
     q_list = list(sympy.symbols("q1:7"))
     l_list = list(sympy.symbols("l0:8"))
     homogenous_tranformations = compute_kuka_forward_kinematics(q_list, l_list)
+
+    # Save Homogenous Transformations
+    with open(HOMOGENOUS_TRANS_SAVE_PATH, 'wb') as outf:
+        outf.write(pickle.dumps(homogenous_tranformations))
+
     A_0_E = homogenous_tranformations[-1]
 
     if DEBUG:
