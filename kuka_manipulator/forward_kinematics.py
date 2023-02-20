@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from kuka_manipulator.helper import dh_homogenous
+from kuka_manipulator.helper import dh_homogenous, homogenous_inverse
 import sympy
 from typing import List, Dict
 from pprint import pprint
@@ -120,6 +120,9 @@ if (__name__ == "__main__"):
         outf.write(pickle.dumps(homogenous_tranformations))
 
     A_0_E = homogenous_tranformations[-1]
+
+    A_0_1_inv = sympy.simplify(
+        homogenous_inverse(homogenous_tranformations[0]))
 
     if DEBUG:
         for i, matrix in enumerate(homogenous_tranformations):

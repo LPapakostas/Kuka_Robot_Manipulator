@@ -100,6 +100,17 @@ def dh_homogenous(theta: sympy.Symbol, d: sympy.Symbol, alpha: sympy.Symbol, a: 
     return dh_homogenous_matrix
 
 
+def homogenous_inverse(T: sympy.Matrix):
+    """
+    """
+
+    R = T[0:3, 0:3]
+    P = T[0:3, 3]
+
+    T_inv = sympy.Matrix([[R.T, -R.T @ P], [0, 0, 0, 1]])
+    return T_inv
+
+
 def skew_symmetric(vector: sympy.Matrix) -> sympy.Matrix:
     """
     Compute skew symmetric matrix for a given vector
@@ -114,3 +125,25 @@ def skew_symmetric(vector: sympy.Matrix) -> sympy.Matrix:
     skew_matrix = sympy.Matrix([[0, -a3, a2], [a3, 0, -a1], [-a2, a1, 0]])
 
     return skew_matrix
+
+
+def compute_det_two(m: sympy.Matrix):
+    """
+    """
+
+    A = sympy.Matrix(2, 2, sympy.symbols('A:2:2'))
+    det = A.det().subs(zip(list(A), list(m)))
+    det = sympy.simplify(det)
+
+    return det
+
+
+def compute_det_three(m: sympy.Matrix):
+    """
+    """
+
+    A = sympy.Matrix(3, 3, sympy.symbols('A:3:3'))
+    det = A.det().subs(zip(list(A), list(m)))
+    det = sympy.simplify(det)
+
+    return det
