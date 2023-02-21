@@ -12,6 +12,8 @@ from kuka_manipulator.helper import compute_det_two, compute_det_three
 JACOBIAN_READ_PATH = os.getcwd() + "/kuka_manipulator/cached_matrices/jacobian.pickle"
 JACOBIAN_DET_READ_PATH = os.getcwd(
 ) + "/kuka_manipulator/cached_matrices/jacobian_det.pickle"
+HOMOGENOUS_TF_READ_PATH = os.getcwd(
+) + "/kuka_manipulator/cached_matrices/homogenous_transformations.pickle"
 
 # *==== Methods ====*
 
@@ -32,6 +34,14 @@ def read_determinant_jacobian() -> sympy.core.mul.Mul:
         det_J = pickle.load(f)
 
     return det_J
+
+
+def read_forward_kinematics():
+
+    with open(HOMOGENOUS_TF_READ_PATH, "rb") as f:
+        h_tf = pickle.load(f)
+
+    return h_tf
 
 
 if (__name__ == "__main__"):
