@@ -10,9 +10,9 @@ def generate_trajectory_coeffs(positions, velocities, accelerations, start_time,
     """
     """
 
-    assert(len(positions) == 2)
-    assert(len(velocities) == 2)
-    assert(len(accelerations) == 2)
+    assert (len(positions) == 2)
+    assert (len(velocities) == 2)
+    assert (len(accelerations) == 2)
 
     t_0, t_f = start_time, stop_time
     p_0, p_f = positions[0], positions[1]
@@ -38,11 +38,12 @@ def generate_trajectory_coeffs(positions, velocities, accelerations, start_time,
 def trajectory_expr(coeffs):
     """
     """
-    assert(len(coeffs) == 6)
+    assert (len(coeffs) == 6)
 
     t = sympy.symbols("t")
-    a0, a1, a2 = coeffs[0], coeffs[1], coeffs[2]
-    a3, a4, a5 = coeffs[3], coeffs[4], coeffs[5]
+    coeffs_round = [round(x, 2) for x in coeffs]
+    a0, a1, a2 = coeffs_round[0], coeffs_round[1], coeffs_round[2]
+    a3, a4, a5 = coeffs_round[3], coeffs_round[4], coeffs_round[5]
     g = a0 + a1 * t + a2 * sympy.Pow(t, 2) + \
         a3*sympy.Pow(t, 3) + a4*sympy.Pow(t, 4) + a5*sympy.Pow(t, 5)
 
@@ -57,9 +58,9 @@ if (__name__ == "__main__"):
 
     P_B = [1.5, 1.5, 1.0]
     V_B = [2.0, 0.1, 0.3]
-    A_B = [0.05, 0.1, 0.01]
+    A_B = [0.0, 0.0, 0.0]
 
-    T = 20  # in [sec]
+    t_0, t_f = 0, 20  # in [sec]
 
     x_vals, x_dot_vals, x_ddot_vals = [P_A[0], P_B[0]], [
         V_A[0], V_B[0]], [A_A[0], A_B[0]]
@@ -69,11 +70,11 @@ if (__name__ == "__main__"):
         V_A[2], V_B[2]], [A_A[2], A_B[2]]
 
     x_parameters = generate_trajectory_coeffs(
-        x_vals, x_dot_vals, x_ddot_vals, 0, T)
+        x_vals, x_dot_vals, x_ddot_vals, t_0, t_f)
     y_parameters = generate_trajectory_coeffs(
-        y_vals, y_dot_vals, y_ddot_vals, 0, T)
+        y_vals, y_dot_vals, y_ddot_vals, t_0, t_f)
     z_parameters = generate_trajectory_coeffs(
-        z_vals, z_dot_vals, z_ddot_vals, 0, T)
+        z_vals, z_dot_vals, z_ddot_vals, t_0, t_f)
 
     print(f"x(t) = {trajectory_expr(x_parameters)}")
     print("")
