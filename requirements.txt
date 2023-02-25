@@ -1,2 +1,3 @@
 sympy
 matplotlib
+roboticstoolbox-python
