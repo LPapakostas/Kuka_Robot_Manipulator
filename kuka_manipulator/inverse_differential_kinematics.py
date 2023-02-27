@@ -3,10 +3,11 @@
 
 import pickle
 from pprint import pprint
+from typing import List
 import numpy as np
 import sympy
 import os
-
+from sympy import sin, cos
 
 JACOBIAN_READ_PATH = os.getcwd() + "/kuka_manipulator/cached_matrices/jacobian.pickle"
 INV_JACOBIAN_SAVE_PATH = os.getcwd(
@@ -15,51 +16,48 @@ JACOBIAN_DETERMINANT_SAVE_PATH = os.getcwd(
 ) + "/kuka_manipulator/cached_matrices/jacobian_det.pickle"
 
 
-def compute_inverse_jacobian_matrix(j: sympy.Matrix) -> sympy.Matrix:
+def compute_inv_jacobian(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> sympy.Matrix:
     """
     """
+    assert(len(q_list) == 3)
+    assert(len(l_list) == 8)
 
-    # Compute inverse Jacobian matrix
-    j_l = sympy.simplify(j[:3, :3])
-    A = sympy.Matrix(3, 3, sympy.symbols('A:3:3'))
-    det_j = A.det().subs(zip(list(A), list(j_l)))
-    det_j = sympy.simplify(sympy.det(j_l))
+    q1, q2, q3 = q_list[0], q_list[1], q_list[2]
 
-    # Compute co-factor matrix
-    c_11 = sympy.simplify(j_l[1, 1] * j_l[2, 2] - j_l[1, 2] * j_l[2, 1])
-    c_12 = sympy.simplify(j_l[1, 0] * j_l[2, 2] - j_l[2, 0] * j_l[1, 2])
-    c_13 = sympy.simplify(j_l[1, 0] * j_l[2, 1] - j_l[2, 0] * j_l[1, 1])
-    c_21 = sympy.simplify(j_l[0, 1] * j_l[2, 2] - j_l[0, 2] * j_l[2, 1])
-    c_22 = sympy.simplify(j_l[0, 0] * j_l[2, 2] - j_l[2, 0] * j_l[0, 2])
-    c_23 = sympy.simplify(j_l[0, 0] * j_l[2, 1] - j_l[2, 0] * j_l[0, 1])
-    c_31 = sympy.simplify(j_l[0, 1] * j_l[1, 2] - j_l[1, 1] * j_l[0, 2])
-    c_32 = sympy.simplify(j_l[0, 0] * j_l[1, 2] - j_l[1, 0] * j_l[0, 2])
-    c_33 = sympy.simplify(j_l[0, 0] * j_l[1, 1] - j_l[1, 0] * j_l[0, 1])
-    coeffs = sympy.Matrix(
-        [[c_11, c_12, c_13], [c_21, c_22, c_23], [c_31, c_32, c_33]])
+    l0, l1, l2 = l_list[0], l_list[1], l_list[2]
+    l3, l4, l5 = l_list[3], l_list[4], l_list[5]
+    l6, l7 = l_list[6], l_list[7]
 
-    mul = np.array([[1, -1, 1], [-1, 1, -1], [1, -1, 1]])
+    # Define constants
+    L = l3 + l6
+    p1 = l1 + l2 * cos(q2) + l4 * sin(q2 + q3) + l5 * \
+        cos(q2 + q3) + l7 * cos(q2 + q3)
+    p2 = l4 * sin(q2 + q3) + l5 * cos(q2 + q3) + l7 * cos(q2 + q3)
+    p3 = l4 * sin(q3) + l5 * cos(q3) + l7 * cos(q3)
 
-    adjoint = (mul @ coeffs).transpose()
-    j_l_inv = sympy.simplify(adjoint / det_j)
-    pprint(j_l_inv)
+    # Define inverse jacobian matrix elements
+    d11 = -sin(q1) / p1
+    d12 = cos(q1) / p1
+    d13 = 0
+    d21 = (p2 * (p1 * cos(q1) - L * sin(q1))) / (l2 * p1 * p3)
+    d22 = (p2 * (p1 * sin(q1) + L * cos(q1))) / (l2 * p1 * p3)
+    d23 = -(l5 * sin(q2 + q3) + l7 * sin(q2 + q3) -
+            l4 * cos(q2 + q3)) / (l2 * p3)
+    d31 = ((l1 - p1) * (p1 * cos(q1) - L * sin(q1))) / (l2 * p1 * p3)
+    d32 = ((l1 - p1) * (p1 * sin(q1) + L * cos(q1))) / (l2 * p1 * p3)
+    d33 = -(l2 * cos(q2) + l4 * cos(q2 + q3) -
+            l5 * sin(q2 + q3) - l7 * sin(q2 + q3)) / (l2 * p3)
 
-    return j_l_inv
-
-
-def read_jacobian() -> sympy.Matrix:
-    """
-    """
-    with open(JACOBIAN_READ_PATH, 'rb') as f:
-        J = pickle.load(f)
-
-    return J
+    # Create inverse jacobian matrix
+    J_inv = sympy.Matrix([[d11, d12, d13], [d21, d22, d23], [d31, d32, d33]])
+    return J_inv
 
 
 if (__name__ == "__main__"):
-    J = read_jacobian()
 
-    J_inv = compute_inverse_jacobian_matrix(J)
+    q_list = list(sympy.symbols("q1:4"))
+    l_list = list(sympy.symbols("l0:8"))
+    J_inv = compute_inv_jacobian(q_list, l_list)
 
     # Save inverse Jacobian matrix
     with open(INV_JACOBIAN_SAVE_PATH, 'wb') as outf:
