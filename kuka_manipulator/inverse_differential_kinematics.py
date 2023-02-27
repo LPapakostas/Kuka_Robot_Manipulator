@@ -4,7 +4,6 @@
 import pickle
 from pprint import pprint
 from typing import List
-import numpy as np
 import sympy
 import os
 from sympy import sin, cos
@@ -34,6 +33,9 @@ def compute_inv_jacobian(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol])
         cos(q2 + q3) + l7 * cos(q2 + q3)
     p2 = l4 * sin(q2 + q3) + l5 * cos(q2 + q3) + l7 * cos(q2 + q3)
     p3 = l4 * sin(q3) + l5 * cos(q3) + l7 * cos(q3)
+    p4 = l5 * sin(q2 + q3) + l7 * sin(q2 + q3) - l4 * cos(q2 + q3)
+    p5 = l2 * cos(q2) + l4 * cos(q2 + q3) - l5 * \
+        sin(q2 + q3) - l7 * sin(q2 + q3)
 
     # Define inverse jacobian matrix elements
     d11 = -sin(q1) / p1
@@ -41,12 +43,10 @@ def compute_inv_jacobian(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol])
     d13 = 0
     d21 = (p2 * (p1 * cos(q1) - L * sin(q1))) / (l2 * p1 * p3)
     d22 = (p2 * (p1 * sin(q1) + L * cos(q1))) / (l2 * p1 * p3)
-    d23 = -(l5 * sin(q2 + q3) + l7 * sin(q2 + q3) -
-            l4 * cos(q2 + q3)) / (l2 * p3)
+    d23 = -p4 / (l2 * p3)
     d31 = ((l1 - p1) * (p1 * cos(q1) - L * sin(q1))) / (l2 * p1 * p3)
     d32 = ((l1 - p1) * (p1 * sin(q1) + L * cos(q1))) / (l2 * p1 * p3)
-    d33 = -(l2 * cos(q2) + l4 * cos(q2 + q3) -
-            l5 * sin(q2 + q3) - l7 * sin(q2 + q3)) / (l2 * p3)
+    d33 = -p5 / (l2 * p3)
 
     # Create inverse jacobian matrix
     J_inv = sympy.Matrix([[d11, d12, d13], [d21, d22, d23], [d31, d32, d33]])
