@@ -30,7 +30,7 @@ def compute_inv_jacobian(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol])
 
     # Define constants
     L = l3 + l6
-    p1 = l1 + l2 * cos(q2) + l4 * sin(q2 + q3) + l5 * \
+    p1 = l1 + l2 * sin(q2) + l4 * sin(q2 + q3) + l5 * \
         cos(q2 + q3) + l7 * cos(q2 + q3)
     p2 = l4 * sin(q2 + q3) + l5 * cos(q2 + q3) + l7 * cos(q2 + q3)
     p3 = l4 * sin(q3) + l5 * cos(q3) + l7 * cos(q3)
