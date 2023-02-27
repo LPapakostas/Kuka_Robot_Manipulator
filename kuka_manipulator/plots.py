@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import os
 import pickle
-import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 
@@ -17,6 +16,12 @@ EEF_POSITION_READ_PATH = os.getcwd(
 JOINTS_ANGLES_READ_PATH = os.getcwd(
 ) + "/kuka_manipulator/simulation/joint_angles.pickle"
 
+EEF_LINEAR_VELOCITY_READ_PATH = os.getcwd(
+) + "/kuka_manipulator/simulation/eef_linear_velocity.pickle"
+
+JOINTS_ANGULAR_VELOCITY_READ_PATH = os.getcwd(
+) + "/kuka_manipulator/simulation/joint_angular_velocity.pickle"
+
 if (__name__ == "__main__"):
 
     print("Read saved values.....")
@@ -30,6 +35,12 @@ if (__name__ == "__main__"):
     with open(JOINTS_ANGLES_READ_PATH, 'rb') as f:
         joint_angles = pickle.load(f)
 
+    with open(EEF_LINEAR_VELOCITY_READ_PATH, 'rb') as f:
+        eef_velocity = pickle.load(f)
+
+    with open(JOINTS_ANGULAR_VELOCITY_READ_PATH, 'rb') as f:
+        joint_angular_velocity = pickle.load(f)
+
     # Decompose values
     eef_position_x = eef_position["x"]
     eef_position_y = eef_position["y"]
@@ -38,6 +49,14 @@ if (__name__ == "__main__"):
     q1 = joint_angles["q1"]
     q2 = joint_angles["q2"]
     q3 = joint_angles["q3"]
+
+    eef_velocity_x = eef_velocity["vx"]
+    eef_velocity_y = eef_velocity["vy"]
+    eef_velocity_z = eef_velocity["vz"]
+
+    q1_dot = joint_angular_velocity["q1"]
+    q2_dot = joint_angular_velocity["q2"]
+    q3_dot = joint_angular_velocity["q3"]
 
     print("Start plotting data.....")
 
@@ -83,6 +102,48 @@ if (__name__ == "__main__"):
     fig.set_dpi(200)
     plt.show()
 
+    # Create Plot for EEF Linear Velocity (X-axis)
+    fig, ax = plt.subplots(figsize=(15, 15))
+    ax.plot(simulation_time, eef_velocity_x)
+    ax.set_xlabel('time [sec]')
+    ax.set_ylabel('Velocity [m/s]')
+    ax.set_title("End Effector Velocity (X-axis)")
+    ax.grid(which='minor', color='black', linewidth=0.2)
+    ax.tick_params(which='minor', bottom=False, left=False)
+    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.set_ybound(upper=0.5, lower=0.0)
+    fig.set_dpi(200)
+    plt.show()
+
+    # Create Plot for EEF Linear Velocity (Y-axis)
+    fig, ax = plt.subplots(figsize=(15, 15))
+    ax.plot(simulation_time, eef_velocity_y)
+    ax.set_xlabel('time [sec]')
+    ax.set_ylabel('Velocity [m/s]')
+    ax.set_title("End Effector Velocity (Y-axis)")
+    ax.grid(which='minor', color='black', linewidth=0.2)
+    ax.tick_params(which='minor', bottom=False, left=False)
+    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.set_ybound(upper=0.5, lower=0.0)
+    fig.set_dpi(200)
+    plt.show()
+
+    # Create Plot for EEF Linear Velocity (Z-axis)
+    fig, ax = plt.subplots(figsize=(15, 15))
+    ax.plot(simulation_time, eef_velocity_z)
+    ax.set_xlabel('time [sec]')
+    ax.set_ylabel('Velocity [m/s]')
+    ax.set_title("End Effector Velocity (z-axis)")
+    ax.grid(which='minor', color='black', linewidth=0.2)
+    ax.tick_params(which='minor', bottom=False, left=False)
+    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.set_ybound(upper=0.5, lower=0.0)
+    fig.set_dpi(200)
+    plt.show()
+
     # *==== Joint Space Plots ====*
 
     # Plot Joint 1 angles (rad)
@@ -117,6 +178,45 @@ if (__name__ == "__main__"):
     ax.set_xlabel('Time [sec]')
     ax.set_ylabel('Angle [rad]')
     ax.set_title("Joint 3 Angle")
+    ax.grid(which='minor', color='black', linewidth=0.2)
+    ax.tick_params(which='minor', bottom=False, left=False)
+    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+    fig.set_dpi(200)
+    plt.show()
+
+    # Plot Joint 1 angular velocity (rad/s)
+    fig, ax = plt.subplots(figsize=(15, 15))
+    ax.plot(simulation_time, q1_dot)
+    ax.set_xlabel('Time [sec]')
+    ax.set_ylabel('Angular Velocity [rad/sec]')
+    ax.set_title("Joint 1 Angular Velocity")
+    ax.grid(which='minor', color='black', linewidth=0.2)
+    ax.tick_params(which='minor', bottom=False, left=False)
+    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+    fig.set_dpi(200)
+    plt.show()
+
+    # Plot Joint 2 angular velocity (rad/s)
+    fig, ax = plt.subplots(figsize=(15, 15))
+    ax.plot(simulation_time, q2_dot)
+    ax.set_xlabel('Time [sec]')
+    ax.set_ylabel('Angular Velocity [rad/sec]')
+    ax.set_title("Joint 2 Angular Velocity")
+    ax.grid(which='minor', color='black', linewidth=0.2)
+    ax.tick_params(which='minor', bottom=False, left=False)
+    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+    fig.set_dpi(200)
+    plt.show()
+
+    # Plot Joint 3 angular velocity (rad/s)
+    fig, ax = plt.subplots(figsize=(15, 15))
+    ax.plot(simulation_time, q3_dot)
+    ax.set_xlabel('Time [sec]')
+    ax.set_ylabel('Angular Velocity [rad/sec]')
+    ax.set_title("Joint 3 Angular Velocity")
     ax.grid(which='minor', color='black', linewidth=0.2)
     ax.tick_params(which='minor', bottom=False, left=False)
     ax.xaxis.set_minor_locator(AutoMinorLocator(2))
