@@ -2,15 +2,17 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import sympy
-import matplotlib.pyplot as plt
 import pickle
 import os
-from matplotlib.ticker import AutoMinorLocator
 
 from kuka_manipulator.inverse_kinematics import compute_inverse_kinematics
 from kuka_manipulator.display import read_forward_kinematics, read_jacobian, read_inverse_jacobian
 
+SAVE = False
+
 if (__name__ == "__main__"):
+
+    # TODO: Parse files from yaml
 
     print("Initializing parameters....")
     T_0, T_F, t_step = 0, 20, 0.01  # in [sec]
@@ -170,284 +172,121 @@ if (__name__ == "__main__"):
         traj_vy.append(v[1])
         traj_vz.append(v[2])
 
-    print("Saving values ....")
+    if(SAVE):
+        print("Saving values ....")
 
-    # Save reference trajectory into pickle file
-    refence_trajectory = {
-        "x": traj_x_ref,
-        "y": traj_y_ref,
-        "z": traj_z_ref
-    }
-    reference_trajectory_save_path = os.getcwd(
-    ) + "/kuka_manipulator/simulation/reference_trajectory.pickle"
-    with open(reference_trajectory_save_path, 'wb') as outf:
-        outf.write(pickle.dumps(refence_trajectory))
+        # Save reference trajectory
+        refence_trajectory = {
+            "x": traj_x_ref,
+            "y": traj_y_ref,
+            "z": traj_z_ref
+        }
+        reference_trajectory_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/reference_trajectory.pickle"
+        with open(reference_trajectory_save_path, 'wb') as outf:
+            outf.write(pickle.dumps(refence_trajectory))
 
-    q_values = {
-        "q1": q1_vals,
-        "q2": q2_vals,
-        "q3": q3_vals
-    }
-    joint_angles_save_path = os.getcwd(
-    ) + "/kuka_manipulator/simulation/joint_angles.pickle"
-    with open(joint_angles_save_path, 'wb') as outf:
-        outf.write(pickle.dumps(q_values))
+        # Save joint angles
+        q_values = {
+            "q1": q1_vals,
+            "q2": q2_vals,
+            "q3": q3_vals
+        }
+        joint_angles_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/joint_angles.pickle"
+        with open(joint_angles_save_path, 'wb') as outf:
+            outf.write(pickle.dumps(q_values))
 
-    # Save Link 1 position
-    link1_position = {
-        "x": link1_pos_x,
-        "y": link1_pos_y,
-        "z": link1_pos_z
-    }
-    link1_position_save_path = os.getcwd(
-    ) + "/kuka_manipulator/simulation/link1_position.pickle"
-    with open(link1_position_save_path, 'wb') as outf:
-        outf.write(pickle.dumps(link1_position))
+        # Save Link 1 position
+        link1_position = {
+            "x": link1_pos_x,
+            "y": link1_pos_y,
+            "z": link1_pos_z
+        }
+        link1_position_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/link1_position.pickle"
+        with open(link1_position_save_path, 'wb') as outf:
+            outf.write(pickle.dumps(link1_position))
 
-    # Save Link 2 position
-    link2_position = {
-        "x": link2_pos_x,
-        "y": link2_pos_y,
-        "z": link2_pos_z
-    }
-    link2_position_save_path = os.getcwd(
-    ) + "/kuka_manipulator/simulation/link2_position.pickle"
-    with open(link2_position_save_path, 'wb') as outf:
-        outf.write(pickle.dumps(link2_position))
+        # Save Link 2 position
+        link2_position = {
+            "x": link2_pos_x,
+            "y": link2_pos_y,
+            "z": link2_pos_z
+        }
+        link2_position_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/link2_position.pickle"
+        with open(link2_position_save_path, 'wb') as outf:
+            outf.write(pickle.dumps(link2_position))
 
-    # Save Link 3 position
-    link3_position = {
-        "x": link3_pos_x,
-        "y": link3_pos_y,
-        "z": link3_pos_z
-    }
-    link3_position_save_path = os.getcwd(
-    ) + "/kuka_manipulator/simulation/link3_position.pickle"
-    with open(link3_position_save_path, 'wb') as outf:
-        outf.write(pickle.dumps(link3_position))
+        # Save Link 3 position
+        link3_position = {
+            "x": link3_pos_x,
+            "y": link3_pos_y,
+            "z": link3_pos_z
+        }
+        link3_position_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/link3_position.pickle"
+        with open(link3_position_save_path, 'wb') as outf:
+            outf.write(pickle.dumps(link3_position))
 
-    # Save Link 4 position
-    link4_position = {
-        "x": link4_pos_x,
-        "y": link4_pos_y,
-        "z": link4_pos_z
-    }
-    link4_position_save_path = os.getcwd(
-    ) + "/kuka_manipulator/simulation/link4_position.pickle"
-    with open(link4_position_save_path, 'wb') as outf:
-        outf.write(pickle.dumps(link4_position))
+        # Save Link 4 position
+        link4_position = {
+            "x": link4_pos_x,
+            "y": link4_pos_y,
+            "z": link4_pos_z
+        }
+        link4_position_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/link4_position.pickle"
+        with open(link4_position_save_path, 'wb') as outf:
+            outf.write(pickle.dumps(link4_position))
 
-    # Save Link 5 position
-    link5_position = {
-        "x": link5_pos_x,
-        "y": link5_pos_y,
-        "z": link5_pos_z
-    }
-    link5_position_save_path = os.getcwd(
-    ) + "/kuka_manipulator/simulation/link5_position.pickle"
-    with open(link5_position_save_path, 'wb') as outf:
-        outf.write(pickle.dumps(link5_position))
+        # Save Link 5 position
+        link5_position = {
+            "x": link5_pos_x,
+            "y": link5_pos_y,
+            "z": link5_pos_z
+        }
+        link5_position_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/link5_position.pickle"
+        with open(link5_position_save_path, 'wb') as outf:
+            outf.write(pickle.dumps(link5_position))
 
-    # Save End effector position
-    actual_trajectory = {
-        "x": traj_x,
-        "y": traj_y,
-        "z": traj_z
-    }
-    actual_trajectory_save_path = os.getcwd(
-    ) + "/kuka_manipulator/simulation/actual_trajectory.pickle"
-    with open(actual_trajectory_save_path, 'wb') as outf:
-        outf.write(pickle.dumps(actual_trajectory))
+        # Save End effector position
+        actual_trajectory = {
+            "x": traj_x,
+            "y": traj_y,
+            "z": traj_z
+        }
+        actual_trajectory_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/actual_trajectory.pickle"
+        with open(actual_trajectory_save_path, 'wb') as outf:
+            outf.write(pickle.dumps(actual_trajectory))
 
-    # Save simulation time
-    simulation_time_save_path = os.getcwd(
-    ) + "/kuka_manipulator/simulation/simulation_time.pickle"
-    with open(simulation_time_save_path, 'wb') as outf:
-        outf.write(pickle.dumps(time))
+        # Save End Effector Velocities
+        end_effector_linear_velocity = {
+            "vx": traj_vx,
+            "vy": traj_vy,
+            "vz": traj_vz
+        }
+        end_effector_linear_velocity_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/eef_linear_velocity.pickle"
+        with open(end_effector_linear_velocity_save_path, 'wb') as outf:
+            outf.write(pickle.dumps(end_effector_linear_velocity))
 
-    # *==== Cartesian Space Plots ====*
+        # Save Joint angular velocities
+        joint_angular_velocity = {
+            "q1": qdot1_vals,
+            "q2": qdot2_vals,
+            "q3": qdot3_vals
+        }
+        joint_angular_velocity_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/joint_angular_velocity.pickle"
+        with open(joint_angular_velocity_save_path, "wb") as outf:
+            outf.write(pickle.dumps(joint_angular_velocity))
 
-    # Create plot for EEF X position
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(time, traj_x_ref, label="Reference")
-    # ax.plot(time, traj_x, label="Actual")
-    # ax.set_xlabel('time [sec]')
-    # ax.set_ylabel('Position [m]')
-    # ax.set_title("End Effector Position (X-axis)")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.legend()
-    # fig.set_dpi(200)
-    # plt.show()
-
-    # Create plot for EEF Y position
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(time, traj_y_ref, label="Reference")
-    # ax.plot(time, traj_y, label="Actual")
-    # ax.set_xlabel('time [sec]')
-    # ax.set_ylabel('Position [m]')
-    # ax.set_title("End Effector Position (Y-axis)")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.legend()
-    # fig.set_dpi(200)
-    # plt.show()
-
-    # Create plot for EEF Z position
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(time, traj_z_ref, label="Reference")
-    # ax.plot(time, traj_z, label="Actual")
-    # ax.set_xlabel('time [sec]')
-    # ax.set_ylabel('Position [m]')
-    # ax.set_title("End Effector Position (Z-axis)")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.legend()
-    # fig.set_dpi(200)
-    # plt.show()
-
-    # Create Plot for EEF Linear Velocity (X-axis)
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(time, traj_vx_ref, label="Reference")
-    # ax.plot(time, traj_vx, label="Actual")
-    # ax.set_xlabel('time [sec]')
-    # ax.set_ylabel('Velocity [m/s]')
-    # ax.set_title("End Effector Velocity (X-axis)")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.legend()
-    # fig.set_dpi(200)
-    # plt.show()
-
-    # Create Plot for EEF Linear Velocity (Y-axis)
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(time, traj_vy_ref, label="Reference")
-    # ax.plot(time, traj_vy, label="Actual")
-    # ax.set_xlabel('time [sec]')
-    # ax.set_ylabel('Velocity [m/s]')
-    # ax.set_title("End Effector Velocity (Y-axis)")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.legend()
-    # fig.set_dpi(200)
-    # plt.show()
-
-    # Create Plot for EEF Linear Velocity (Z-axis)
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(time, traj_vz_ref, label="Reference")
-    # ax.plot(time, traj_vz, label="Actual")
-    # ax.set_xlabel('time [sec]')
-    # ax.set_ylabel('Velocity [m/s]')
-    # ax.set_title("End Effector Velocity (Z-axis)")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.legend()
-    # fig.set_dpi(200)
-    # plt.show()
-
-    # *==== Joint Space Plots ====*
-
-    # Plot Joint 1 angles (rad)
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(time, q1_vals)
-    # ax.set_xlabel('Time [sec]')
-    # ax.set_ylabel('Angle [rad]]')
-    # ax.set_title("Joint 1 Angle")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # fig.set_dpi(200)
-    # plt.show()
-
-    # Plot Joint 2 angles (rad)
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(time, q2_vals)
-    # ax.set_xlabel('Time [sec]')
-    # ax.set_ylabel('Angle [rad]]')
-    # ax.set_title("Joint 2 Angle")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # fig.set_dpi(200)
-    # plt.show()
-
-    # Plot Joint 3 angles (rad)
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(time, q3_vals)
-    # ax.set_xlabel('Time [sec]')
-    # ax.set_ylabel('Angle [rad]]')
-    # ax.set_title("Joint 3 Angle")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # fig.set_dpi(200)
-    # plt.show()
-
-    # Plot Joint 1 angular velocity (rad/s)
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(time, qdot1_vals)
-    # ax.set_xlabel('Time [sec]')
-    # ax.set_ylabel('Angular Velocity [rad/sec]')
-    # ax.set_title("Joint 1 Angular Velocity")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # fig.set_dpi(200)
-    # plt.show()
-
-    # Plot Joint 2 angular velocity (rad/s)
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(time, qdot2_vals)
-    # ax.set_xlabel('Time [sec]')
-    # ax.set_ylabel('Angular Velocity [rad/sec]')
-    # ax.set_title("Joint 2 Angular Velocity")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # fig.set_dpi(200)
-    # plt.show()
-
-    # Plot Joint 3 angular velocity (rad/s)
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(time, qdot3_vals)
-    # ax.set_xlabel('Time [sec]')
-    # ax.set_ylabel('Angular Velocity [rad/sec]')
-    # ax.set_title("Joint 3 Angular Velocity")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # fig.set_dpi(200)
-    # plt.show()
-
-    # Create Plot for X-Y trajectory of EEF
-    # fig, ax = plt.subplots(figsize=(15, 15))
-    # ax.plot(traj_x_ref, traj_y_ref, label="Reference")
-    # ax.plot(traj_x, traj_y, label="Actual")
-    # ax.set_xlabel('Position (X) [m]')
-    # ax.set_ylabel('Position (Y) [m]')
-    # ax.set_title("End Effector Trajectory")
-    # ax.grid(which='minor', color='black', linewidth=0.2)
-    # ax.tick_params(which='minor', bottom=False, left=False)
-    # ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    # ax.legend()
-    # fig.set_dpi(200)
-    # plt.show()
+        # Save simulation time
+        simulation_time_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/simulation_time.pickle"
+        with open(simulation_time_save_path, 'wb') as outf:
+            outf.write(pickle.dumps(time))

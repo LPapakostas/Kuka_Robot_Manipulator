@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 import os
 import pickle
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import AutoMinorLocator
-
+from mpl_toolkits import mplot3d
 
 # *==== CONSTANTS ====*
 SIMULATION_TIME_READ_PATH = os.getcwd(
@@ -86,81 +84,43 @@ if (__name__ == "__main__"):
 
     dt = simuation_time[1] - simuation_time[0]
     step = int(5 / dt)
+    # 0, 5, 10, 15 and 20s
+    desired_times = [0, 500, 1000, 1500, -1]
 
     print("Start trajectory animation (2D).... ")
 
-    for td in range(0, len(simuation_time), step):
-
-        print(td)
-
-        # Denote joints in XY plane
-        o_positions_x = [0, link1_position_x[td], link2_position_x[td],
-                         link3_position_x[td], link4_position_x[td], link5_position_x[td]]
-        o_positions_y = [0, link1_position_y[td], link2_position_y[td],
-                         link3_position_y[td], link4_position_y[td], link5_position_y[td]]
+    for td in desired_times:
+        joint_positions_x = [0, link1_position_x[td], link2_position_x[td],
+                             link3_position_x[td], link4_position_x[td], link5_position_x[td]]
+        joint_positions_y = [0, link1_position_y[td], link2_position_y[td],
+                             link3_position_y[td], link4_position_y[td], link5_position_y[td]]
 
         fig, ax = plt.subplots(figsize=(15, 15))
-        ax.plot(refence_trajectory_x, refence_trajectory_y)
-        ax.plot(o_positions_x, o_positions_y, 'o')
-        ax.plot(eef_position_x[td], eef_position_y[td], 'x')
-
+        ax.plot(refence_trajectory_x, refence_trajectory_y,
+                label="Reference Trajectory")
+        ax.plot(joint_positions_x, joint_positions_y,
+                'o', ms=5, label="Joints")
+        ax.plot(eef_position_x[td], eef_position_y[td],
+                'x', ms=10, label="End Effector Position")
         ax.plot([0, link1_position_x[td]], [
-                0, link1_position_y[td]])  # 0 --> 1 Link
-
+                0, link1_position_y[td]], color="black", alpha=0.6)  # 0 --> 1 Link
         ax.plot([link1_position_x[td], link2_position_x[td]],
-                [link1_position_y[td], link2_position_y[td]])  # 1 --> 2 Link
-
+                [link1_position_y[td], link2_position_y[td]], color="black", alpha=0.6)  # 1 --> 2 Link
         ax.plot([link2_position_x[td], link3_position_x[td]],
-                [link2_position_y[td], link3_position_y[td]])  # 2 --> 3 Link
-
+                [link2_position_y[td], link3_position_y[td]], color="black", alpha=0.6)  # 2 --> 3 Link
         ax.plot([link3_position_x[td], link4_position_x[td]],
-                [link3_position_y[td], link4_position_y[td]])  # 3 --> 4 Link
-
+                [link3_position_y[td], link4_position_y[td]], color="black", alpha=0.6)  # 3 --> 4 Link
         ax.plot([link4_position_x[td], link5_position_x[td]],
-                [link4_position_y[td], link5_position_y[td]])  # 4 --> 5 Link
-
+                [link4_position_y[td], link5_position_y[td]], color="black", alpha=0.6)  # 4 --> 5 Link
         ax.plot([link5_position_x[td], eef_position_x[td]],
-                [link5_position_y[td], eef_position_y[td]])  # 5 --> EEF Link
-
+                [link5_position_y[td], eef_position_y[td]], color="black", alpha=0.6)  # 5 --> EEF Link
         ax.set_xlabel('Position (X) [m]')
         ax.set_ylabel('Position (Y) [m]')
         ax.set_title("End Effector Trajectory Animation")
-        ax.grid(which='minor', color='black', linewidth=0.2)
-        ax.tick_params(which='minor', bottom=False, left=False)
-        ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-        ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+        ax.legend(loc='upper left')
         fig.set_dpi(200)
         plt.show()
 
-    # Print final position of EEF
-    td = -1
-    o_positions_x = [0, link1_position_x[td], link2_position_x[td],
-                     link3_position_x[td], link4_position_x[td], link5_position_x[td]]
-    o_positions_y = [0, link1_position_y[td], link2_position_y[td],
-                     link3_position_y[td], link4_position_y[td], link5_position_y[td]]
+    print("Start trajectory animation (3D)....")
 
-    fig, ax = plt.subplots(figsize=(15, 15))
-    ax.plot(refence_trajectory_x, refence_trajectory_y)
-    ax.plot(o_positions_x, o_positions_y, 'o')
-    ax.plot(eef_position_x[td], eef_position_y[td], 'x')
-    ax.plot([0, link1_position_x[td]], [
-            0, link1_position_y[td]])  # 0 --> 1 Link
-    ax.plot([link1_position_x[td], link2_position_x[td]],
-            [link1_position_y[td], link2_position_y[td]])  # 1 --> 2 Link
-    ax.plot([link2_position_x[td], link3_position_x[td]],
-            [link2_position_y[td], link3_position_y[td]])  # 2 --> 3 Link
-    ax.plot([link3_position_x[td], link4_position_x[td]],
-            [link3_position_y[td], link4_position_y[td]])  # 3 --> 4 Link
-    ax.plot([link4_position_x[td], link5_position_x[td]],
-            [link4_position_y[td], link5_position_y[td]])  # 4 --> 5 Link
-    ax.plot([link5_position_x[td], eef_position_x[td]],
-            [link5_position_y[td], eef_position_y[td]])  # 5 --> EEF Link
-    ax.set_xlabel('Position (X) [m]')
-    ax.set_ylabel('Position (Y) [m]')
-    ax.set_title("End Effector Trajectory Animation")
-    ax.grid(which='minor', color='black', linewidth=0.2)
-    ax.tick_params(which='minor', bottom=False, left=False)
-    ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-    fig.set_dpi(200)
-    plt.show()
+    # TODO: Add 3D plots
