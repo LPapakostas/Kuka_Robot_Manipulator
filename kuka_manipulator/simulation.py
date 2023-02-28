@@ -4,29 +4,56 @@ import numpy as np
 import sympy
 import pickle
 import os
+from copy import deepcopy
 
 from kuka_manipulator.inverse_kinematics import compute_inverse_kinematics
 from kuka_manipulator.display import read_forward_kinematics, read_jacobian, read_inverse_jacobian
+from kuka_manipulator.trajectory import create_three_phase_trajectory
 
-SAVE = False
+SAVE = True
 
 if (__name__ == "__main__"):
 
     # TODO: Parse files from yaml
 
     print("Initializing parameters....")
-    T_0, T_F, t_step = 0, 20, 0.01  # in [sec]
-    time = np.arange(T_0, T_F, t_step)
+    T, t_step = 10, 0.01
+    T_0, T_F = 0, 2 * T  # in [sec]
+    time1 = np.arange(T_0, T, t_step)
+    time2 = np.arange(T, T_F, t_step)
+    time = np.concatenate((time1, time2))
 
-    # Define initial_conditions
-    P_A = [0.7, -0.4, 0.95]
-    P_B = [0.7, 0.4, 0.95]
-    V = [0.2, 0.3, 0.1]
+    # Define initial/boundary conditions
+    P_A = [0.7, -0.5, 0.8]
+    P_B = [1.0, 0.5, 0.8]
+    V_A = [0.0, 0.0, 0.0]
+    V_B = [0.0, 0.0, 0.0]
+    A_A = [0.0, 0.0, 0.0]
+    A_B = [0.0, 0.0, 0.0]
 
-    P_x_start, P_x_final = [P_A[0], P_B[0]]
-    P_y_start, P_y_final = [P_A[1], P_B[1]]
-    P_z_start, P_z_final = [P_A[2], P_B[2]]
-    V_x, V_y, V_z = V[0], V[1], V[2]
+    P_x_conditions_time1 = [P_A[0], P_B[0]]
+    V_x_conditions_time1 = [V_A[0], V_B[0]]
+    A_x_conditions_time1 = [A_A[0], A_B[0]]
+
+    P_x_conditions_time2 = [P_B[0], P_A[0]]
+    V_x_conditions_time2 = [V_B[0], V_A[0]]
+    A_x_conditions_time2 = [A_B[0], A_A[0]]
+
+    P_y_conditions_time1 = [P_A[1], P_B[1]]
+    V_y_conditions_time1 = [V_A[1], V_B[1]]
+    A_y_conditions_time1 = [A_A[1], A_B[1]]
+
+    P_y_conditions_time2 = [P_B[1], P_A[1]]
+    V_y_conditions_time2 = [V_B[1], V_A[1]]
+    A_y_conditions_time2 = [A_B[1], A_A[1]]
+
+    P_z_conditions_time1 = [P_A[2], P_B[2]]
+    V_z_conditions_time1 = [V_A[2], V_B[2]]
+    A_z_conditions_time1 = [A_A[2], A_B[2]]
+
+    P_z_conditions_time2 = [P_B[2], P_A[2]]
+    V_z_conditions_time2 = [V_B[2], V_A[2]]
+    A_z_conditions_time2 = [A_B[2], A_A[2]]
 
     # Obtain all link positions in respect to q1, q2, q3
     q_syms = list(sympy.symbols("q1:4"))
@@ -47,17 +74,44 @@ if (__name__ == "__main__"):
     ik_diff = j_inv[0:3, 0:3]
 
     print("Initializing Task-Space Trajectory Computations ....")
-    traj_x_ref, traj_y_ref, traj_z_ref = [P_x_start], [P_y_start], [P_z_start]
-    lambda_x = (P_x_final - P_x_start) / T_F
-    lambda_y = (P_y_final - P_y_start) / T_F
-    lambda_z = (P_z_final - P_z_start) / T_F
 
-    # Compute (Reference) EEF Position Trajectories
-    for _ in range(1, len(time)):
-        last_x, last_y, last_z = traj_x_ref[-1], traj_y_ref[-1], traj_z_ref[-1]
-        traj_x_ref.append(last_x + lambda_x * t_step)
-        traj_y_ref.append(last_y + lambda_y * t_step)
-        traj_z_ref.append(last_z + lambda_z * t_step)
+    # *==== Compute Reference Trajectories ====*
+
+    # Compute Reference (periodic) trajectory [x]
+    x_reference_trajectories_time1 = create_three_phase_trajectory(
+        P_x_conditions_time1, V_x_conditions_time1, A_x_conditions_time1, time1)
+    x_reference_trajectories_time2 = create_three_phase_trajectory(
+        P_x_conditions_time2, V_x_conditions_time2, A_x_conditions_time2, time2)
+
+    traj_x_ref = deepcopy(x_reference_trajectories_time1["position"])
+    traj_x_ref.extend(x_reference_trajectories_time2["position"])
+
+    traj_vx_ref = deepcopy(x_reference_trajectories_time1["velocity"])
+    traj_vx_ref.extend(x_reference_trajectories_time2["velocity"])
+
+    # Compute Reference (periodic) trajectory [y]
+    y_reference_trajectories_time1 = create_three_phase_trajectory(
+        P_y_conditions_time1, V_y_conditions_time1, A_y_conditions_time1, time1)
+    y_reference_trajectories_time2 = create_three_phase_trajectory(
+        P_y_conditions_time2, V_y_conditions_time2, A_y_conditions_time2, time2)
+
+    traj_y_ref = deepcopy(y_reference_trajectories_time1["position"])
+    traj_y_ref.extend(y_reference_trajectories_time2["position"])
+
+    traj_vy_ref = deepcopy(y_reference_trajectories_time1["velocity"])
+    traj_vy_ref.extend(y_reference_trajectories_time2["velocity"])
+
+    # Compute Reference (periodic) trajectory [z]
+    z_reference_trajectories_time1 = create_three_phase_trajectory(
+        P_z_conditions_time1, V_z_conditions_time1, A_z_conditions_time1, time1)
+    z_reference_trajectories_time2 = create_three_phase_trajectory(
+        P_z_conditions_time2, V_z_conditions_time2, A_z_conditions_time2, time2)
+
+    traj_z_ref = deepcopy(z_reference_trajectories_time1["position"])
+    traj_z_ref.extend(z_reference_trajectories_time2["position"])
+
+    traj_vz_ref = deepcopy(z_reference_trajectories_time1["velocity"])
+    traj_vz_ref.extend(z_reference_trajectories_time2["velocity"])
 
     # Compute `q`'s through inverse kinematics
     q1_vals, q2_vals, q3_vals = [], [], []
@@ -136,13 +190,6 @@ if (__name__ == "__main__"):
         traj_y.append(current_p_eef[1])
         traj_z.append(current_p_eef[2])
 
-    # Compute (Reference) EEF Velocity Trajectories
-    traj_vx_ref, traj_vy_ref, traj_vz_ref = [], [], []
-    for _ in range(0, len(time)):
-        traj_vx_ref.append(V_x)
-        traj_vy_ref.append(V_y)
-        traj_vz_ref.append(V_z)
-
     # Compute joint velocities through inverse Jacobian
     qdot1_vals, qdot2_vals, qdot3_vals = [], [], []
     for i in range(0, len(time)):
@@ -175,16 +222,27 @@ if (__name__ == "__main__"):
     if(SAVE):
         print("Saving values ....")
 
-        # Save reference trajectory
-        refence_trajectory = {
+        # Save reference position trajectory
+        refence_position_trajectory = {
             "x": traj_x_ref,
             "y": traj_y_ref,
             "z": traj_z_ref
         }
-        reference_trajectory_save_path = os.getcwd(
-        ) + "/kuka_manipulator/simulation/reference_trajectory.pickle"
-        with open(reference_trajectory_save_path, 'wb') as outf:
-            outf.write(pickle.dumps(refence_trajectory))
+        reference_position_trajectory_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/reference_position_trajectory.pickle"
+        with open(reference_position_trajectory_save_path, 'wb') as outf:
+            outf.write(pickle.dumps(refence_position_trajectory))
+
+        # Save reference velocity trajectory
+        refence_velocity_trajectory = {
+            "x": traj_vx_ref,
+            "y": traj_vy_ref,
+            "z": traj_vz_ref
+        }
+        reference_velocity_trajectory_save_path = os.getcwd(
+        ) + "/kuka_manipulator/simulation/reference_velocity_trajectory.pickle"
+        with open(reference_velocity_trajectory_save_path, 'wb') as outf:
+            outf.write(pickle.dumps(refence_velocity_trajectory))
 
         # Save joint angles
         q_values = {

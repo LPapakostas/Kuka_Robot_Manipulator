@@ -9,8 +9,8 @@ from mpl_toolkits import mplot3d
 SIMULATION_TIME_READ_PATH = os.getcwd(
 ) + "/kuka_manipulator/simulation/simulation_time.pickle"
 
-REFERENCE_TRAJECTORY_READ_PATH = os.getcwd(
-) + "/kuka_manipulator/simulation/reference_trajectory.pickle"
+REFERENCE_POSITION_TRAJECTORY_READ_PATH = os.getcwd(
+) + "/kuka_manipulator/simulation/reference_position_trajectory.pickle"
 
 LINK1_POSITION_READ_PATH = os.getcwd(
 ) + "/kuka_manipulator/simulation/link1_position.pickle"
@@ -39,7 +39,7 @@ if (__name__ == "__main__"):
     with open(SIMULATION_TIME_READ_PATH, 'rb') as f:
         simuation_time = pickle.load(f)
 
-    with open(REFERENCE_TRAJECTORY_READ_PATH, 'rb') as f:
+    with open(REFERENCE_POSITION_TRAJECTORY_READ_PATH, 'rb') as f:
         refence_trajectory = pickle.load(f)
 
     with open(LINK1_POSITION_READ_PATH, 'rb') as f:
