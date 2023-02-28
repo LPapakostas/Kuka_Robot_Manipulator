@@ -45,19 +45,19 @@ def create_three_phase_trajectory(positions, velocities, accelerations, time, de
     g0_dot, gf_dot = velocities[0], velocities[-1]
     g0_ddot, gf_ddot = accelerations[0], accelerations[-1]
 
-    #
+    # Compute intermediate points
     g02_dot = (gf - g0) / (tf - t0 - 2 * delta)
     g02 = g0 + delta * g02_dot
     gf2 = g0 + (tf - t0 - 3 * delta) * g02_dot
-    position_trajectory, velocity_trajectory, acceleration_trajectory = [], [], []
+    position_trajectory, velocity_trajectory = [], []
 
     # Generate coefficients
     coeffs_phase1 = generate_trajectory_coeffs(
         [g0, g02], [g0_dot, g02_dot], [g0_ddot, 0], t0, t0 + 2 * delta)
     coeffs_phase2 = generate_trajectory_coeffs(
-        [g02, gf2], [g02_dot, g02_dot], [0, 0], t0 + 2 * delta, tf - t0 - 2 * delta)
+        [g02, gf2], [g02_dot, g02_dot], [0, 0], t0 + 2 * delta, tf - 2 * delta)
     coeffs_phase3 = generate_trajectory_coeffs(
-        [gf2, gf], [g02_dot, gf_dot], [0, gf_ddot], tf - t0 - 2 * delta, tf)
+        [gf2, gf], [g02_dot, gf_dot], [0, 0], tf - 2 * delta, tf)
     assert(len(coeffs_phase1) == len(coeffs_phase2) == len(coeffs_phase3) == 6)
 
     # Compute position trajectory
@@ -65,7 +65,7 @@ def create_three_phase_trajectory(positions, velocities, accelerations, time, de
         if(ts < t0 + 2 * delta):
             current_val = coeffs_phase1[0] + coeffs_phase1[1] * ts + coeffs_phase1[2] * pow(
                 ts, 2) + coeffs_phase1[3] * pow(ts, 3) + coeffs_phase1[4] * pow(ts, 4) + coeffs_phase1[5] * pow(ts, 5)
-        elif(ts < tf - t0 - 2 * delta):
+        elif(ts < tf - 2 * delta):
             current_val = coeffs_phase2[0] + coeffs_phase2[1] * ts
         else:
             current_val = coeffs_phase3[0] + coeffs_phase3[1] * ts + coeffs_phase3[2] * pow(
@@ -75,33 +75,18 @@ def create_three_phase_trajectory(positions, velocities, accelerations, time, de
     # Compute velocity trajectory
     for ts in time:
         if(ts < t0 + 2 * delta):
-            current_val = coeffs_phase1[1] + 2 * coeffs_phase1[2] * ts + 6 * coeffs_phase1[3] * pow(
-                ts, 2) + 12 * coeffs_phase1[4] * pow(ts, 3) + 20 * coeffs_phase1[5] * pow(ts, 4)
-        elif(ts < tf - t0 - 2 * delta):
+            current_val = coeffs_phase1[1] + 2 * coeffs_phase1[2] * ts + 3 * coeffs_phase1[3] * pow(
+                ts, 2) + 4 * coeffs_phase1[4] * pow(ts, 3) + 5 * coeffs_phase1[5] * pow(ts, 4)
+        elif(ts < tf - 2 * delta):
             current_val = coeffs_phase2[1]
         else:
-            current_val = coeffs_phase1[1] + 2 * coeffs_phase1[2] * ts + 6 * coeffs_phase1[3] * pow(
-                ts, 2) + 12 * coeffs_phase1[4] * pow(ts, 3) + 20 * coeffs_phase1[5] * pow(ts, 4)
+            current_val = coeffs_phase3[1] + 2 * coeffs_phase3[2] * ts + 3 * coeffs_phase3[3] * pow(
+                ts, 2) + 4 * coeffs_phase3[4] * pow(ts, 3) + 5 * coeffs_phase3[5] * pow(ts, 4)
         velocity_trajectory.append(current_val)
-
-    # Compute acceleration trajectory
-    for ts in time:
-        if(ts < t0 + 2 * delta):
-            current_val = 2 * coeffs_phase1[2] + 6 * coeffs_phase1[3] * ts + 12 * \
-                coeffs_phase1[4] * pow(ts, 2) + 20 * \
-                coeffs_phase1[5] * pow(ts, 3)
-        elif(ts < tf - t0 - 2 * delta):
-            current_val = 0.0
-        else:
-            current_val = 2 * coeffs_phase1[2] + 6 * coeffs_phase1[3] * ts + 12 * \
-                coeffs_phase1[4] * pow(ts, 2) + 20 * \
-                coeffs_phase1[5] * pow(ts, 3)
-        acceleration_trajectory.append(current_val)
 
     trajectories = {
         "position": position_trajectory,
-        "velocity": velocity_trajectory,
-        "acceleration": acceleration_trajectory
+        "velocity": velocity_trajectory
     }
 
     return trajectories
