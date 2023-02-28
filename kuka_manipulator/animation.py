@@ -63,24 +63,31 @@ if (__name__ == "__main__"):
     # Decompose values
     refence_trajectory_x = refence_trajectory["x"]
     refence_trajectory_y = refence_trajectory["y"]
+    refence_trajectory_z = refence_trajectory["z"]
 
     link1_position_x = link1_position["x"]
     link1_position_y = link1_position["y"]
+    link1_position_z = link1_position["z"]
 
     link2_position_x = link2_position["x"]
     link2_position_y = link2_position["y"]
+    link2_position_z = link2_position["z"]
 
     link3_position_x = link3_position["x"]
     link3_position_y = link3_position["y"]
+    link3_position_z = link3_position["z"]
 
     link4_position_x = link4_position["x"]
     link4_position_y = link4_position["y"]
+    link4_position_z = link4_position["z"]
 
     link5_position_x = link5_position["x"]
     link5_position_y = link5_position["y"]
+    link5_position_z = link5_position["z"]
 
     eef_position_x = eef_position["x"]
     eef_position_y = eef_position["y"]
+    eef_position_z = eef_position["z"]
 
     dt = simuation_time[1] - simuation_time[0]
     step = int(5 / dt)
@@ -123,4 +130,43 @@ if (__name__ == "__main__"):
 
     print("Start trajectory animation (3D)....")
 
-    # TODO: Add 3D plots
+    for td in desired_times:
+        joint_positions_x = [0, link1_position_x[td], link2_position_x[td],
+                             link3_position_x[td], link4_position_x[td], link5_position_x[td]]
+        joint_positions_y = [0, link1_position_y[td], link2_position_y[td],
+                             link3_position_y[td], link4_position_y[td], link5_position_y[td]]
+        joint_positions_z = [0, link1_position_z[td], link2_position_z[td],
+                             link3_position_z[td], link4_position_z[td], link5_position_z[td]]
+
+        fig = plt.figure()
+        ax = plt.axes(projection="3d")
+        ax.plot(refence_trajectory_x, refence_trajectory_y, refence_trajectory_z,
+                label="Reference Trajectory")
+        ax.plot(joint_positions_x, joint_positions_y, joint_positions_z,
+                'o', ms=5, label="Joints")
+        ax.plot(eef_position_x[td], eef_position_y[td], eef_position_z[td],
+                'x', ms=10, label="End Effector Position")
+        ax.plot([0, link1_position_x[td]], [
+            0, link1_position_y[td]], [0, link1_position_z[td]], color="black", alpha=0.6)  # 0 --> 1 Link
+
+        ax.plot([link1_position_x[td], link2_position_x[td]],
+                [link1_position_y[td], link2_position_y[td]], [link1_position_z[td], link2_position_z[td]], color="black", alpha=0.6)  # 1 --> 2 Link
+
+        ax.plot([link2_position_x[td], link3_position_x[td]],
+                [link2_position_y[td], link3_position_y[td]], [link2_position_z[td], link3_position_z[td]], color="black", alpha=0.6)  # 2 --> 3 Link
+
+        ax.plot([link3_position_x[td], link4_position_x[td]],
+                [link3_position_y[td], link4_position_y[td]], [link3_position_z[td], link4_position_z[td]], color="black", alpha=0.6)  # 3 --> 4 Link
+
+        ax.plot([link4_position_x[td], link5_position_x[td]],
+                [link4_position_y[td], link5_position_y[td]], [link4_position_z[td], link5_position_z[td]], color="black", alpha=0.6)  # 4 --> 5 Link
+
+        ax.plot([link5_position_x[td], eef_position_x[td]],
+                [link5_position_y[td], eef_position_y[td]], [link5_position_z[td], eef_position_z[td]], color="black", alpha=0.6)  # 5 --> EEF Link
+        ax.set_xlabel('Position (X) [m]')
+        ax.set_ylabel('Position (Y) [m]')
+        ax.set_zlabel('Position (Z) [m]')
+        ax.set_title("End Effector Trajectory Animation")
+        ax.legend()
+        fig.set_dpi(200)
+        plt.show()
