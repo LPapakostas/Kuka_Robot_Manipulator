@@ -19,12 +19,15 @@ L = [L0, L1, L2, L3, L4, L5, L6, L7]
 
 # *==== Variables ====*
 JACOBIAN_READ_PATH = os.getcwd() + "/kuka_manipulator/cached_matrices/jacobian.pickle"
-JACOBIAN_DET_READ_PATH = os.getcwd(
-) + "/kuka_manipulator/cached_matrices/jacobian_det.pickle"
-HOMOGENOUS_TF_READ_PATH = os.getcwd(
-) + "/kuka_manipulator/cached_matrices/homogenous_transformations.pickle"
-INVERSE_JACOBIAN_READ_PATH = os.getcwd(
-) + "/kuka_manipulator/cached_matrices/inverse_jacobian.pickle"
+JACOBIAN_DET_READ_PATH = (
+    os.getcwd() + "/kuka_manipulator/cached_matrices/jacobian_det.pickle"
+)
+HOMOGENOUS_TF_READ_PATH = (
+    os.getcwd() + "/kuka_manipulator/cached_matrices/homogenous_transformations.pickle"
+)
+INVERSE_JACOBIAN_READ_PATH = (
+    os.getcwd() + "/kuka_manipulator/cached_matrices/inverse_jacobian.pickle"
+)
 
 # *==== Methods ====*
 
@@ -36,13 +39,13 @@ def read_jacobian(subs: bool = False) -> sympy.Matrix:
     Parameters
     ----------
     subs : `bool`
-        Substitute symbolic values of `l` related parameters 
+        Substitute symbolic values of `l` related parameters
     """
 
-    with open(JACOBIAN_READ_PATH, 'rb') as f:
+    with open(JACOBIAN_READ_PATH, "rb") as f:
         J = pickle.load(f)
 
-    if (subs):
+    if subs:
         l_list = list(sympy.symbols("l0:8"))
         for l in range(0, len(l_list)):
             J = J.subs(l_list[l], L[l])
@@ -58,12 +61,12 @@ def read_inverse_jacobian(subs: bool = False) -> sympy.Matrix:
     Parameters
     ----------
     subs : `bool`
-        Substitute symbolic values of `l` related parameters 
+        Substitute symbolic values of `l` related parameters
     """
     with open(INVERSE_JACOBIAN_READ_PATH, "rb") as f:
         J_inv = pickle.load(f)
 
-    if (subs):
+    if subs:
         l_list = list(sympy.symbols("l0:8"))
         for l in range(0, len(l_list)):
             J_inv = J_inv.subs(l_list[l], L[l])
@@ -79,12 +82,12 @@ def read_determinant_jacobian(subs=False) -> sympy.core.mul.Mul:
     Parameters
     ----------
     subs : `bool`
-        Substitute symbolic values of `l` related parameters 
+        Substitute symbolic values of `l` related parameters
     """
-    with open(JACOBIAN_DET_READ_PATH, 'rb') as f:
+    with open(JACOBIAN_DET_READ_PATH, "rb") as f:
         det_J = pickle.load(f)
 
-    if (subs):
+    if subs:
         l_list = list(sympy.symbols("l0:8"))
         for l in range(0, len(l_list)):
             det_J = det_J.subs(l_list[l], L[l])
@@ -100,13 +103,13 @@ def read_forward_kinematics(subs=False) -> List[sympy.Matrix]:
     Parameters
     ----------
     subs : `bool`
-        Substitute symbolic values of `l` related parameters 
+        Substitute symbolic values of `l` related parameters
     """
 
     with open(HOMOGENOUS_TF_READ_PATH, "rb") as f:
         h_tf = pickle.load(f)
 
-    if (subs):
+    if subs:
         l_list = list(sympy.symbols("l0:8"))
 
         for i, matrix in enumerate(h_tf):

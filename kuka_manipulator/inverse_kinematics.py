@@ -23,11 +23,11 @@ def compute_inverse_kinematics(x: float, y: float, z: float) -> List[float]:
     Parameters
     ----------
     x : `double`
-        End Effector x-axis coordinate 
-    y : `double` 
-        End Effector y-axis coordinate 
+        End Effector x-axis coordinate
+    y : `double`
+        End Effector y-axis coordinate
     z : `double`
-        End Effector y-axis coordinate 
+        End Effector y-axis coordinate
 
     Returns
     -------
@@ -42,8 +42,9 @@ def compute_inverse_kinematics(x: float, y: float, z: float) -> List[float]:
     q1 = atan2((K * y - L * x), K * x + L * y)
 
     # Define constants for `q2` joint angle
-    R = (pow((K - L1), 2) + pow((z - L0), 2) -
-         pow(L2, 2) - pow(L4, 2) - pow(L5 + L7, 2)) / (2 * L2)
+    R = (
+        pow((K - L1), 2) + pow((z - L0), 2) - pow(L2, 2) - pow(L4, 2) - pow(L5 + L7, 2)
+    ) / (2 * L2)
     Q = pow(L5 + L7, 2) + pow(L4, 2) - pow(R, 2)
     # Compute q3
     q3 = 2 * atan2(-(L5 + L7) + sqrt(Q), R + L4) + 2 * pi
@@ -52,14 +53,13 @@ def compute_inverse_kinematics(x: float, y: float, z: float) -> List[float]:
     A = L2 + L4 * cos(q3) - (L5 + L7) * sin(q3)
     B = L4 * sin(q3) + (L5 + L7) * cos(q3)
     # Compute q2
-    q2 = atan2(A * (K - L1) - B * (z - L0),
-               A * (z - L0) + B * (K - L1))
+    q2 = atan2(A * (K - L1) - B * (z - L0), A * (z - L0) + B * (K - L1))
 
     q_lst = [q1, q2, q3]
     return q_lst
 
 
-if (__name__ == "__main__"):
+if __name__ == "__main__":
     P_A = [0.7, -0.4, 0.95]
     q_lst = compute_inverse_kinematics(P_A[0], P_A[1], P_A[2])
 
