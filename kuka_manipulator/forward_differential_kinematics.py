@@ -14,14 +14,17 @@ from kuka_manipulator.helper import skew_symmetric
 # *==== Constants ====*
 
 DH_BASE = np.array([[0], [0], [1]])
-JACOBIAN_SAVE_DATA_PATH = os.getcwd(
-) + "/kuka_manipulator/cached_matrices/jacobian.pickle"
+JACOBIAN_SAVE_DATA_PATH = (
+    os.getcwd() + "/kuka_manipulator/cached_matrices/jacobian.pickle"
+)
 
 
 # *==== Methods ====*
 
 
-def compute_jacobian_matrix(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> sympy.Matrix:
+def compute_jacobian_matrix(
+    q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]
+) -> sympy.Matrix:
     """
     Compute Jacobian of Kuka Manipulator
 
@@ -40,9 +43,17 @@ def compute_jacobian_matrix(q_list: List[sympy.Symbol], l_list: List[sympy.Symbo
 
     # Compute and decompose homogenous matrices
     dh_homogenous_matrices = compute_kuka_forward_kinematics(q_list, l_list)
-    assert(len(dh_homogenous_matrices) == 6)
-    A_0_1, A_0_2, A_0_3 = dh_homogenous_matrices[0], dh_homogenous_matrices[1], dh_homogenous_matrices[2]
-    A_0_4, A_0_5, A_0_E = dh_homogenous_matrices[3], dh_homogenous_matrices[4], dh_homogenous_matrices[5]
+    assert len(dh_homogenous_matrices) == 6
+    A_0_1, A_0_2, A_0_3 = (
+        dh_homogenous_matrices[0],
+        dh_homogenous_matrices[1],
+        dh_homogenous_matrices[2],
+    )
+    A_0_4, A_0_5, A_0_E = (
+        dh_homogenous_matrices[3],
+        dh_homogenous_matrices[4],
+        dh_homogenous_matrices[5],
+    )
 
     # Compute J_L1 and J_A1
     R_0_0 = sympy.Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
@@ -104,20 +115,21 @@ def compute_jacobian_matrix(q_list: List[sympy.Symbol], l_list: List[sympy.Symbo
     j_a6 = b_5
 
     j = sympy.Matrix(
-        [[j_l1, j_l2, j_l3, j_l4, j_l5, j_l6], [j_a1, j_a2, j_a3, j_a4, j_a5, j_a6]])
+        [[j_l1, j_l2, j_l3, j_l4, j_l5, j_l6], [j_a1, j_a2, j_a3, j_a4, j_a5, j_a6]]
+    )
     j = sympy.simplify(j)
 
     return j
 
 
-if (__name__ == "__main__"):
+if __name__ == "__main__":
     q_list = list(sympy.symbols("q1:7"))
     l_list = list(sympy.symbols("l0:8"))
 
     J = compute_jacobian_matrix(q_list, l_list)
 
     # Save Jacobian matrix
-    with open(JACOBIAN_SAVE_DATA_PATH, 'wb') as outf:
+    with open(JACOBIAN_SAVE_DATA_PATH, "wb") as outf:
         outf.write(pickle.dumps(J))
 
     pprint(J)

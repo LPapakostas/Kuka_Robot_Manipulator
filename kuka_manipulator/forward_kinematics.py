@@ -10,13 +10,16 @@ import pickle
 from kuka_manipulator.helper import dh_homogenous
 
 # *==== Constants ====*
-HOMOGENOUS_TRANS_SAVE_PATH = os.getcwd(
-) + "/kuka_manipulator/cached_matrices/homogenous_transformations.pickle"
+HOMOGENOUS_TRANS_SAVE_PATH = (
+    os.getcwd() + "/kuka_manipulator/cached_matrices/homogenous_transformations.pickle"
+)
 
 # *==== Methods ====*
 
 
-def generate_DH_table(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> Dict[str, Dict[str, sympy.Symbol]]:
+def generate_DH_table(
+    q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]
+) -> Dict[str, Dict[str, sympy.Symbol]]:
     """
     Generate table of DH parameters
 
@@ -33,8 +36,8 @@ def generate_DH_table(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) ->
         Denavit-Hartenberg parameters table
     """
 
-    assert(len(q_list) == 6)
-    assert(len(l_list) == 8)
+    assert len(q_list) == 6
+    assert len(l_list) == 8
 
     q1, q2, q3 = q_list[0], q_list[1], q_list[2]
     q4, q5, q6 = q_list[3], q_list[4], q_list[5]
@@ -56,13 +59,15 @@ def generate_DH_table(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) ->
         "2": link_2_params,
         "3": link_3_params,
         "4": link_4_params,
-        "5": link_5_params
+        "5": link_5_params,
     }
 
     return dh_parameter_table
 
 
-def compute_DH_transformation_matrices(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> List[sympy.Matrix]:
+def compute_DH_transformation_matrices(
+    q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]
+) -> List[sympy.Matrix]:
     """
     Compute Homogenous Tranformation matrix, using DH parameters
 
@@ -75,7 +80,7 @@ def compute_DH_transformation_matrices(q_list: List[sympy.Symbol], l_list: List[
 
     Returns
     -------
-    homogenous_tranformations : List 
+    homogenous_tranformations : List
         Homogenous transformation of each link in symbolic form
     """
 
@@ -88,13 +93,16 @@ def compute_DH_transformation_matrices(q_list: List[sympy.Symbol], l_list: List[
         current_alpha = link_parameters["alpha"]
         current_a = link_parameters["a"]
         current_homogenous_matrix = dh_homogenous(
-            current_theta, current_d, current_alpha, current_a)
+            current_theta, current_d, current_alpha, current_a
+        )
         dh_homogenous_matrices.append(current_homogenous_matrix)
 
     return dh_homogenous_matrices
 
 
-def compute_kuka_forward_kinematics(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> List[sympy.Matrix]:
+def compute_kuka_forward_kinematics(
+    q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]
+) -> List[sympy.Matrix]:
     """
     Compute forward kinematics matrix for Kuka Manipulator
 
@@ -107,23 +115,20 @@ def compute_kuka_forward_kinematics(q_list: List[sympy.Symbol], l_list: List[sym
 
     Returns
     -------
-    homogenous_tranformations : List 
+    homogenous_tranformations : List
         Homogenous transformation of sequential links in symbolic form
     """
 
-    assert(len(q_list) == 6)
-    assert(len(l_list) == 8)
+    assert len(q_list) == 6
+    assert len(l_list) == 8
 
     DH_matrices = compute_DH_transformation_matrices(q_list, l_list)
-    A_0_E = sympy.Matrix([[1, 0, 0, 0],
-                         [0, 1, 0, 0],
-                         [0, 0, 1, 0],
-                         [0, 0, 0, 1]])
+    A_0_E = sympy.Matrix([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
     homogenous_tranformations = []
 
     for i, matrix in enumerate(DH_matrices):
         # Substitute q4, q5, q4 with 0
-        if (i > 2):
+        if i > 2:
             matrix = matrix.subs(q_list[i], 0)
         A_0_E = sympy.simplify(A_0_E @ matrix)
         homogenous_tranformations.append(A_0_E)
@@ -131,14 +136,13 @@ def compute_kuka_forward_kinematics(q_list: List[sympy.Symbol], l_list: List[sym
     return homogenous_tranformations
 
 
-if (__name__ == "__main__"):
-
+if __name__ == "__main__":
     q_list = list(sympy.symbols("q1:7"))
     l_list = list(sympy.symbols("l0:8"))
     homogenous_tranformations = compute_kuka_forward_kinematics(q_list, l_list)
 
     # Save Homogenous Transformations
-    with open(HOMOGENOUS_TRANS_SAVE_PATH, 'wb') as outf:
+    with open(HOMOGENOUS_TRANS_SAVE_PATH, "wb") as outf:
         outf.write(pickle.dumps(homogenous_tranformations))
 
     A_0_E = homogenous_tranformations[-1]

@@ -10,13 +10,16 @@ from sympy import sin, cos
 
 # *==== Constants ====*
 
-INV_JACOBIAN_SAVE_PATH = os.getcwd(
-) + "/kuka_manipulator/cached_matrices/inverse_jacobian.pickle"
+INV_JACOBIAN_SAVE_PATH = (
+    os.getcwd() + "/kuka_manipulator/cached_matrices/inverse_jacobian.pickle"
+)
 
 # *==== Methods ====*
 
 
-def compute_inv_jacobian(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> sympy.Matrix:
+def compute_inv_jacobian(
+    q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]
+) -> sympy.Matrix:
     """
     Compute Inverse Jacobian of Kuka Maninpulator
 
@@ -32,8 +35,8 @@ def compute_inv_jacobian(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol])
     J_inv : `sympy.Matrix`
         Inverse Jacobian matrix in symbolic form
     """
-    assert(len(q_list) == 3)
-    assert(len(l_list) == 8)
+    assert len(q_list) == 3
+    assert len(l_list) == 8
 
     q1, q2, q3 = q_list[0], q_list[1], q_list[2]
 
@@ -43,13 +46,11 @@ def compute_inv_jacobian(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol])
 
     # Define constants
     L = l3 + l6
-    p1 = l1 + l2 * sin(q2) + l4 * sin(q2 + q3) + l5 * \
-        cos(q2 + q3) + l7 * cos(q2 + q3)
+    p1 = l1 + l2 * sin(q2) + l4 * sin(q2 + q3) + l5 * cos(q2 + q3) + l7 * cos(q2 + q3)
     p2 = l4 * sin(q2 + q3) + l5 * cos(q2 + q3) + l7 * cos(q2 + q3)
     p3 = l4 * sin(q3) + l5 * cos(q3) + l7 * cos(q3)
     p4 = l5 * sin(q2 + q3) + l7 * sin(q2 + q3) - l4 * cos(q2 + q3)
-    p5 = l2 * cos(q2) + l4 * cos(q2 + q3) - l5 * \
-        sin(q2 + q3) - l7 * sin(q2 + q3)
+    p5 = l2 * cos(q2) + l4 * cos(q2 + q3) - l5 * sin(q2 + q3) - l7 * sin(q2 + q3)
 
     # Define inverse jacobian matrix elements
     d11 = -sin(q1) / p1
@@ -67,14 +68,13 @@ def compute_inv_jacobian(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol])
     return J_inv
 
 
-if (__name__ == "__main__"):
-
+if __name__ == "__main__":
     q_list = list(sympy.symbols("q1:4"))
     l_list = list(sympy.symbols("l0:8"))
     J_inv = compute_inv_jacobian(q_list, l_list)
 
     # Save inverse Jacobian matrix
-    with open(INV_JACOBIAN_SAVE_PATH, 'wb') as outf:
+    with open(INV_JACOBIAN_SAVE_PATH, "wb") as outf:
         outf.write(pickle.dumps(J_inv))
 
     pprint(J_inv)

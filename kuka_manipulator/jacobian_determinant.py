@@ -9,8 +9,9 @@ from kuka_manipulator.helper import compute_det_two
 
 # *==== Constants ====*
 
-JACOBIAN_DETERMINANT_SAVE_PATH = os.getcwd(
-) + "/kuka_manipulator/cached_matrices/jacobian_det.pickle"
+JACOBIAN_DETERMINANT_SAVE_PATH = (
+    os.getcwd() + "/kuka_manipulator/cached_matrices/jacobian_det.pickle"
+)
 
 # *==== Methods ====*
 
@@ -42,9 +43,9 @@ def compute_jacobian_determinant() -> sympy.core.mul.Mul:
     return det_Jl
 
 
-if (__name__ == "__main__"):
+if __name__ == "__main__":
     det_Jl = compute_jacobian_determinant()
 
     # Save inverse Jacobian matrix
-    with open(JACOBIAN_DETERMINANT_SAVE_PATH, 'wb') as outf:
+    with open(JACOBIAN_DETERMINANT_SAVE_PATH, "wb") as outf:
         outf.write(pickle.dumps(det_Jl))
