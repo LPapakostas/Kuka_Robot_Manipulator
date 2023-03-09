@@ -7,13 +7,22 @@ import pickle
 from kuka_manipulator.display import read_jacobian
 from kuka_manipulator.helper import compute_det_two
 
+# *==== Constants ====*
+
 JACOBIAN_DETERMINANT_SAVE_PATH = os.getcwd(
 ) + "/kuka_manipulator/cached_matrices/jacobian_det.pickle"
+
+# *==== Methods ====*
 
 
 def compute_jacobian_determinant() -> sympy.core.mul.Mul:
     """
     Compute determinant of Jabobian matrix
+
+    Returns
+    -------
+    det_JL : `sympy.core.mul.Mul`
+        Jacobian determinant equation in symbolic form
     """
 
     # Read jacobian saved matrix

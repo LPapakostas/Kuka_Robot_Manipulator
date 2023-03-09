@@ -3,24 +3,40 @@
 
 import sympy
 import numpy as np
-from kuka_manipulator.forward_kinematics import compute_kuka_forward_kinematics, L
-from kuka_manipulator.helper import skew_symmetric
 from typing import List
 from pprint import pprint
 import pickle
 import os
 
+from kuka_manipulator.forward_kinematics import compute_kuka_forward_kinematics
+from kuka_manipulator.helper import skew_symmetric
+
 # *==== Constants ====*
 
 DH_BASE = np.array([[0], [0], [1]])
-SUBS = False
-SAVE_DATA_PATH = os.getcwd() + "/kuka_manipulator/cached_matrices/jacobian.pickle"
+JACOBIAN_SAVE_DATA_PATH = os.getcwd(
+) + "/kuka_manipulator/cached_matrices/jacobian.pickle"
 
 
 # *==== Methods ====*
 
 
 def compute_jacobian_matrix(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> sympy.Matrix:
+    """
+    Compute Jacobian of Kuka Manipulator
+
+    Parameters
+    ----------
+    q_list : `List`
+        List of joint angles in symbolic form
+    l_list : `List`
+        List of link lengths in symbolic form
+
+    Returns
+    -------
+    J : `sympy.Matrix`
+        Jacobian matrix in symbolic form
+    """
 
     # Compute and decompose homogenous matrices
     dh_homogenous_matrices = compute_kuka_forward_kinematics(q_list, l_list)
@@ -101,11 +117,7 @@ if (__name__ == "__main__"):
     J = compute_jacobian_matrix(q_list, l_list)
 
     # Save Jacobian matrix
-    with open(SAVE_DATA_PATH, 'wb') as outf:
+    with open(JACOBIAN_SAVE_DATA_PATH, 'wb') as outf:
         outf.write(pickle.dumps(J))
-
-    if SUBS:
-        for i in range(0, len(l_list)):
-            J = J.subs(l_list[i], L[i])
 
     pprint(J)

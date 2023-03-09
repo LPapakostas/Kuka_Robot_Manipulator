@@ -8,15 +8,29 @@ import sympy
 import os
 from sympy import sin, cos
 
-JACOBIAN_READ_PATH = os.getcwd() + "/kuka_manipulator/cached_matrices/jacobian.pickle"
+# *==== Constants ====*
+
 INV_JACOBIAN_SAVE_PATH = os.getcwd(
 ) + "/kuka_manipulator/cached_matrices/inverse_jacobian.pickle"
-JACOBIAN_DETERMINANT_SAVE_PATH = os.getcwd(
-) + "/kuka_manipulator/cached_matrices/jacobian_det.pickle"
+
+# *==== Methods ====*
 
 
 def compute_inv_jacobian(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> sympy.Matrix:
     """
+    Compute Inverse Jacobian of Kuka Maninpulator
+
+    Parameters
+    ----------
+    q_list : `List`
+        List of joint angles in symbolic form
+    l_list : `List`
+        List of link lengths in symbolic form
+
+    Returns
+    -------
+    J_inv : `sympy.Matrix`
+        Inverse Jacobian matrix in symbolic form
     """
     assert(len(q_list) == 3)
     assert(len(l_list) == 8)
