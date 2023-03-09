@@ -2,12 +2,37 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import numpy.typing as npt
+from typing import List, Dict
 
-# TODO: Add docstrings
+# *==== Methods ====*
 
 
-def generate_trajectory_coeffs(positions, velocities, accelerations, start_time, stop_time):
+def generate_trajectory_coeffs(positions: List[float], velocities: List[float], accelerations: List[float], start_time: float, stop_time: float) -> List[float]:
     """
+    Create parameters of 5th degree polynominal trajectory
+
+    Parameters
+    ----------
+    positions: `List`
+        Position boundary conditions 
+
+    velocities: `List` 
+        Velocity boundary conditions
+
+    accelerations: `List`
+        Acceleration boundary conditions
+
+    start_time: `double`
+        Trajectory start time [sec]
+
+    stop_time: `double
+        Trajectory stop time [sec]
+
+    Returns
+    -------
+    parameters: `List`
+        Trajectory coefficients
     """
 
     assert (len(positions) == 2)
@@ -31,13 +56,34 @@ def generate_trajectory_coeffs(positions, velocities, accelerations, start_time,
                            [0, 0, 2, 6 * t_f, 12 * t_f ** (2), 20 * t_f ** (3)]])
     boundary_conditions = np.array([p_0, v_0, a_0, p_f, v_f, a_f]).T
 
-    parameters = np.linalg.inv(coef_matrix)  @ boundary_conditions
-
+    parameters = list(np.linalg.inv(coef_matrix)  @ boundary_conditions)
     return parameters
 
 
-def create_three_phase_trajectory(positions, velocities, accelerations, time, delta=0.2):
+def create_three_phase_trajectory(positions: List[float], velocities: List[float], accelerations: List[float], time: npt.ArrayLike, delta: float = 0.2) -> Dict[str, List]:
     """
+    Create 3-phase trajectory for continuous periodic linear motion.
+
+    Parameters
+    ----------
+    positions: `List`
+        Start/Final linear trajectory position boundary conditions
+
+    velocities: `List`
+        Start/Final linear trajectory velocity boundary conditions
+
+    accelerations: `List`
+        Start/Final linear trajectory acceleration boundary conditions
+
+    time: 
+
+    delta: `float`
+        Timestep where trajectory phase is changing [sec]
+
+    Returns
+    -------
+    trajectories: `Dict`
+        Position and Velocity desired trajectories
     """
     # Decompose values
     t0, tf = time[0], time[-1]
@@ -88,5 +134,4 @@ def create_three_phase_trajectory(positions, velocities, accelerations, time, de
         "position": position_trajectory,
         "velocity": velocity_trajectory
     }
-
     return trajectories

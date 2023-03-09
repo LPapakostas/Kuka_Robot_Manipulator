@@ -1,34 +1,36 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from kuka_manipulator.helper import dh_homogenous, homogenous_inverse
+
 import sympy
 from typing import List, Dict
 from pprint import pprint
 import os
 import pickle
 
-# *==== Static Parameter Definition ====*
-L0 = 0.810  # in [m]
-L1 = 0.200  # in [m]
-L2 = 0.600  # in [m]
-L3 = 0.030  # in [m]
-L4 = 0.140  # in [m]
-L5 = 0.550  # in [m]
-L6 = 0.100  # in [m]
-L7 = 0.100  # in [m]
-L = [L0, L1, L2, L3, L4, L5, L6, L7]
+from kuka_manipulator.helper import dh_homogenous
 
-DEBUG = False
+# *==== Constants ====*
 HOMOGENOUS_TRANS_SAVE_PATH = os.getcwd(
 ) + "/kuka_manipulator/cached_matrices/homogenous_transformations.pickle"
-
-# TODO: Add docstrings
 
 # *==== Methods ====*
 
 
 def generate_DH_table(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> Dict[str, Dict[str, sympy.Symbol]]:
     """
+    Generate table of DH parameters
+
+    Parameters
+    ----------
+    q_list : `List`
+        List of joint angles in symbolic form
+    l_list : `List`
+        List of link lengths in symbolic form
+
+    Returns
+    -------
+    dh_parameter_table : `Dict`
+        Denavit-Hartenberg parameters table
     """
 
     assert(len(q_list) == 6)
@@ -62,6 +64,19 @@ def generate_DH_table(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) ->
 
 def compute_DH_transformation_matrices(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> List[sympy.Matrix]:
     """
+    Compute Homogenous Tranformation matrix, using DH parameters
+
+    Parameters
+    ----------
+    q_list : `List`
+        List of joint angles in symbolic form
+    l_list : `List`
+        List of link lengths in symbolic form
+
+    Returns
+    -------
+    homogenous_tranformations : List 
+        Homogenous transformation of each link in symbolic form
     """
 
     dh_parameter_table = generate_DH_table(q_list, l_list)
@@ -74,12 +89,6 @@ def compute_DH_transformation_matrices(q_list: List[sympy.Symbol], l_list: List[
         current_a = link_parameters["a"]
         current_homogenous_matrix = dh_homogenous(
             current_theta, current_d, current_alpha, current_a)
-
-        if DEBUG:
-            print(f"Transformation matrix from frame {i} to {i+1} is: ")
-            pprint(current_homogenous_matrix)
-            print('\n')
-
         dh_homogenous_matrices.append(current_homogenous_matrix)
 
     return dh_homogenous_matrices
@@ -87,6 +96,19 @@ def compute_DH_transformation_matrices(q_list: List[sympy.Symbol], l_list: List[
 
 def compute_kuka_forward_kinematics(q_list: List[sympy.Symbol], l_list: List[sympy.Symbol]) -> List[sympy.Matrix]:
     """
+    Compute forward kinematics matrix for Kuka Manipulator
+
+    Parameters
+    ----------
+    q_list : `List`
+        List of joint angles in symbolic form
+    l_list : `List`
+        List of link lengths in symbolic form
+
+    Returns
+    -------
+    homogenous_tranformations : List 
+        Homogenous transformation of sequential links in symbolic form
     """
 
     assert(len(q_list) == 6)
@@ -120,17 +142,4 @@ if (__name__ == "__main__"):
         outf.write(pickle.dumps(homogenous_tranformations))
 
     A_0_E = homogenous_tranformations[-1]
-
-    A_0_1_inv = sympy.simplify(
-        homogenous_inverse(homogenous_tranformations[0]))
-
-    if DEBUG:
-        for i, matrix in enumerate(homogenous_tranformations):
-            print(f"Transformation matrix from frame {0} to {i+1} is: ")
-            pprint(matrix)
-            print('\n')
-
-    for i in range(0, len(l_list)):
-        A_0_E = A_0_E.subs(l_list[i], L[i])
-
     pprint(A_0_E)

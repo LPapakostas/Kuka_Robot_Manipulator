@@ -4,9 +4,7 @@
 import os
 import pickle
 import sympy
-from pprint import pprint
-
-from kuka_manipulator.helper import compute_det_two, compute_det_three
+from typing import List
 
 # *==== Static Parameter Definition ====*
 L0 = 0.810  # in [m]
@@ -31,9 +29,16 @@ INVERSE_JACOBIAN_READ_PATH = os.getcwd(
 # *==== Methods ====*
 
 
-def read_jacobian(subs=False) -> sympy.Matrix:
+def read_jacobian(subs: bool = False) -> sympy.Matrix:
     """
+    Read Jacobian matrix in symbolic form
+
+    Parameters
+    ----------
+    subs : `bool`
+        Substitute symbolic values of `l` related parameters 
     """
+
     with open(JACOBIAN_READ_PATH, 'rb') as f:
         J = pickle.load(f)
 
@@ -46,8 +51,14 @@ def read_jacobian(subs=False) -> sympy.Matrix:
     return J
 
 
-def read_inverse_jacobian(subs=False) -> sympy.Matrix:
+def read_inverse_jacobian(subs: bool = False) -> sympy.Matrix:
     """
+    Read inverse Jacobian matrix in symbolic form
+
+    Parameters
+    ----------
+    subs : `bool`
+        Substitute symbolic values of `l` related parameters 
     """
     with open(INVERSE_JACOBIAN_READ_PATH, "rb") as f:
         J_inv = pickle.load(f)
@@ -61,16 +72,36 @@ def read_inverse_jacobian(subs=False) -> sympy.Matrix:
     return J_inv
 
 
-def read_determinant_jacobian() -> sympy.core.mul.Mul:
+def read_determinant_jacobian(subs=False) -> sympy.core.mul.Mul:
     """
+    Read saved Jacobian determinant in symbolic form.
+
+    Parameters
+    ----------
+    subs : `bool`
+        Substitute symbolic values of `l` related parameters 
     """
     with open(JACOBIAN_DET_READ_PATH, 'rb') as f:
         det_J = pickle.load(f)
 
+    if (subs):
+        l_list = list(sympy.symbols("l0:8"))
+        for l in range(0, len(l_list)):
+            det_J = det_J.subs(l_list[l], L[l])
+        det_J = sympy.simplify(det_J)
+
     return det_J
 
 
-def read_forward_kinematics(subs=False):
+def read_forward_kinematics(subs=False) -> List[sympy.Matrix]:
+    """
+    Read forward kinematics equations in symbolic form
+
+    Parameters
+    ----------
+    subs : `bool`
+        Substitute symbolic values of `l` related parameters 
+    """
 
     with open(HOMOGENOUS_TF_READ_PATH, "rb") as f:
         h_tf = pickle.load(f)
@@ -84,39 +115,3 @@ def read_forward_kinematics(subs=False):
             h_tf[i] = sympy.simplify(matrix)
 
     return h_tf
-
-
-if (__name__ == "__main__"):
-    q = list(sympy.symbols("q1:4"))
-
-    J = read_jacobian()
-    det_J = read_determinant_jacobian()
-    j_l = sympy.trigsimp(J[:3, :3])
-
-    c_11 = sympy.simplify(j_l[1, 1] * j_l[2, 2] - j_l[1, 2] * j_l[2, 1])
-    D_11 = sympy.simplify(c_11 / det_J)
-
-    c_21 = sympy.simplify(j_l[0, 1] * j_l[2, 2] - j_l[0, 2] * j_l[2, 1])
-    D_12 = -sympy.simplify(c_21 / det_J)
-
-    c_31 = sympy.simplify(j_l[0, 1] * j_l[1, 2] - j_l[1, 1] * j_l[0, 2])
-    D_31 = sympy.simplify(c_31 / det_J)
-
-    c_12 = sympy.simplify(j_l[1, 0] * j_l[2, 2] - j_l[2, 0] * j_l[1, 2])
-    D_21 = -sympy.simplify(c_12 / det_J)
-
-    c_22 = sympy.simplify(j_l[0, 0] * j_l[2, 2] - j_l[2, 0] * j_l[0, 2])
-    D_22 = sympy.simplify(c_22 / det_J)
-
-    c_32 = sympy.simplify(j_l[0, 0] * j_l[1, 2] - j_l[1, 0] * j_l[0, 2])
-    D_23 = -sympy.simplify(c_32 / det_J)
-
-    c_13 = sympy.simplify(j_l[1, 0] * j_l[2, 1] - j_l[2, 0] * j_l[1, 1])
-    D_31 = sympy.simplify(c_13 / det_J)
-
-    c_23 = sympy.simplify(j_l[0, 0] * j_l[2, 1] - j_l[2, 0] * j_l[0, 1])
-    D_23 = -sympy.simplify(c_23 / det_J)
-
-    c_33 = sympy.simplify(j_l[0, 0] * j_l[1, 1] - j_l[1, 0] * j_l[0, 1])
-    D_33 = sympy.simplify(c_33 / det_J)
-    pprint(D_33)
